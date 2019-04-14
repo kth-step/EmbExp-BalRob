@@ -1,4 +1,7 @@
 
+*.launch
+
+
 embexp-balrob/Debug
 embexp-balrob/Release
 
