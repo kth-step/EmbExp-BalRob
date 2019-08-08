@@ -7,9 +7,10 @@
 
 #include "LPC11xx.h"
 #include <dev/i2c.h>
-#include "dev/hw.h"
+#include <dev/hw.h>
 
-#include <stdio.h>
+#include <io.h>
+
 
 /*
 IMU (MPU6050)
@@ -53,26 +54,58 @@ uint8_t imu_write(uint8_t addr, uint8_t val) {
 	return 0;
 }
 
-uint8_t imu_init()
+
+uint8_t set_offset_(int16_t acc_x_off, int16_t acc_z_off, int16_t gyro_y_off)
+{
+	uint8_t temp;
+
+	int8_t acc_x_offsetH = acc_x_off >> 8;
+	int8_t acc_x_offsetL = acc_x_off & 0x00FF;
+	int8_t acc_z_offsetH = acc_z_off >> 8;
+	int8_t acc_z_offsetL = acc_z_off & 0x00FF;
+	int8_t gyro_y_offsetH = gyro_y_off >> 8;
+	int8_t gyro_y_offsetL = gyro_y_off & 0x00FF;
+
+#define ACC_X_OFF_H 			0x06
+#define ACC_X_OFF_L				0x07
+#define ACC_Z_OFF_H				0x0A
+#define ACC_Z_OFF_L				0x0B
+#define GYRO_Y_OFF_H			0x15
+#define GYRO_Y_OFF_L			0x16
+
+	if ((temp = imu_write(ACC_X_OFF_H, acc_x_offsetH)))
+		return temp;
+	if ((temp = imu_write(ACC_X_OFF_L, acc_x_offsetL)))
+		return temp;
+
+	if ((temp = imu_write(ACC_Z_OFF_H, acc_z_offsetH)))
+		return temp;
+	if ((temp = imu_write(ACC_Z_OFF_L, acc_z_offsetL)))
+		return temp;
+
+	if ((temp = imu_write(GYRO_Y_OFF_H, gyro_y_offsetH)))
+		return temp;
+	if ((temp = imu_write(GYRO_Y_OFF_L, gyro_y_offsetL)))
+		return temp;
+
+	return 0;
+}
+
+uint8_t imu_init(uint8_t wint)
 {
 	uint8_t temp;
 	//Init AD0, pull down valuesistor
 	LPC_IOCON->PIO1_10  &= ~0x1F;
 	LPC_IOCON->PIO1_10  |= 0x08;
 
-	// init gpio for imu int pin
-	LPC_IOCON->PIO1_11  &= ~0x07;
-	LPC_IOCON->PIO1_11  |= 0x00;
-	hw_gpio_set_dir(1,11,0);
-
 	//Init i2c bus
 	I2CInit(I2CMASTER);
 
 	// sample rate 333Hz ( we enable DLPF afterwards, so 1kHz clock base )
-	if ((temp = imu_write(0x19, (3) - 1)))
+	if ((temp = imu_write(0x19, (5) - 1)))
 		return temp;
 	// DLPF enabled, 100Hz
-	if ((temp = imu_write(0x1A, 0x2)))
+	if ((temp = imu_write(0x1A, 0x3)))
 		return temp;
 
 	// Gyro scale range set to +- 250°/s, LSB sensitivity 131 LSB/(°/s)
@@ -94,10 +127,47 @@ uint8_t imu_init()
 	if ((temp = imu_write(0x6B, 0x00)))
 		return temp;
 
+	// configure offsets with precalibrated values
+#define ACC_X_OFF				-1251
+#define ACC_Z_OFF				910
+#define GYRO_Y_OFF				-18
+	//calculate_offset(ACC_X_OFF, ACC_Z_OFF, GYRO_Y_OFF);
+	if ((temp = set_offset_(ACC_X_OFF, ACC_Z_OFF, GYRO_Y_OFF)))
+		return temp;
+
+	// setup for interrupts
+	// ---------------------------------
+	// init gpio for imu int pin, with pull-up
+	LPC_IOCON->PIO1_11  &= ~0x07;
+	LPC_IOCON->PIO1_11  |= 0x00;
+	hw_gpio_set_dir(1,11,0);
+
+	// interrupt as edge sensitive and rising edge interrupt
+	LPC_GPIO1->IS = 0;
+	LPC_GPIO1->IBE = 0;
+	LPC_GPIO1->IEV = (1 << 11);
+	/*
+	// interrupt as level sensitive, high active
+	LPC_GPIO1->IS = (1 << 11);
+	LPC_GPIO1->IBE = 0;
+	LPC_GPIO1->IEV = (1 << 11);
+	*/
+	// Enable GPIO pin interrupt
+	LPC_GPIO1->IE = (1 << 11);
+
+
 	// read once to clear data ready interrupt
 	imu_read_values();
 
-	printf("imu init done.\r\n");
+	// Enable interrupt in the NVIC
+	NVIC_ClearPendingIRQ(EINT1_IRQn);
+	NVIC_SetPriority(EINT1_IRQn,3);
+	if (wint)
+		NVIC_EnableIRQ(EINT1_IRQn);
+	else
+		NVIC_DisableIRQ(EINT1_IRQn);
+
+	io_info("imu init done.");
 	return 0;
 }
 
@@ -105,6 +175,22 @@ void imu_wait_new_data() {
 	while (!hw_gpio_get(1,11));
 }
 
+__attribute__ ((weak)) void imu_handler() {
+	imu_read_values();
+}
+
+void PIOINT1_IRQHandler(void)
+{
+	// clear interrupt for pin
+	LPC_GPIO1->IC = (1 << 11); // has no effect if in level sensitive mode
+
+	// run imu_handler, if level sensitive imu needs to be read in the handler
+	imu_handler();
+
+	// TODO: check whether handler was too slow (interrupt set again?)
+	if (LPC_GPIO1->MIS & (1 << 11))
+		io_debug("imu handler was too slow.");
+}
 
 
 

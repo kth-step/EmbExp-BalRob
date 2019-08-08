@@ -50,61 +50,21 @@ void uart_init()
 
 }
 
-void uart_write(char c)
+int uart_write(char c)
 {
-	while (!(LPC_UART->LSR & 0x20));
+	if (!(LPC_UART->LSR & 0x20))
+		return -1;
+	//while (!(LPC_UART->LSR & 0x20));
+
 	LPC_UART->THR = c;
-}
-
-uint8_t uart_read_ready() {
-	return (LPC_UART->LSR & 0x1);
-}
-
-char uart_read()
-{
-	while (!(LPC_UART->LSR & 0x1));
-	return LPC_UART->RBR;
-}
-
-
-/*
---------------------------------------------------------------------------------------------
- */
-
-#include <unistd.h>
-
-// Function returns number of unwritten bytes if error, otherwise 0 for success
-int _write(int iFileHandle, char *pcBuffer, int iLength) {
-	if (iFileHandle != STDOUT_FILENO) {
-	  return -1;
-	}
-
-	for (int i = 0; i < iLength; i++) {
-		uart_write(pcBuffer[i]);
-	}
 	return 0;
 }
 
+int uart_read()
+{
+	if (!(LPC_UART->LSR & 0x1))
+		return -1;
 
-// Function returns number of characters read, stored in pcBuffer
-int _read(int iFileHandle, char *pcBuffer, int iLength) {
-	if (iFileHandle != STDIN_FILENO) {
-	  return -1;
-	}
-
-	char c = uart_read();
-	switch (c) {
-	case '\n':
-	case '\r':
-		uart_write('\r');
-		uart_write('\n');
-		break;
-	default:
-		uart_write(c);
-	}
-
-	pcBuffer[0] = c;
-
-	return 1;
+	return LPC_UART->RBR;
 }
 

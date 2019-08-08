@@ -14,8 +14,12 @@ void timer_init();
 
 void timer_start();
 
-// unit is 10 nanoseconds
+// unit is 10 nanosecond
 uint32_t timer_read();
 void timer_wait(uint32_t t);
+
+// unit is 1 us
+uint32_t timer_read_us();
+void timer_wait_us(uint32_t t);
 
 #endif /* DEV_TIMER_H_ */

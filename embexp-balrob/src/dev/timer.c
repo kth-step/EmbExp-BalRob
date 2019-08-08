@@ -35,6 +35,9 @@ void timer_start() {
 uint32_t timer_read() {
 	return TMR12M_TO_10NS(LPC_TMR32B0->TC);
 }
+uint32_t timer_read_us() {
+	return timer_read() / 100;
+}
 
 // use different timer here
 void timer_wait(uint32_t t) {
@@ -42,4 +45,8 @@ void timer_wait(uint32_t t) {
 	LPC_TMR16B1->TCR = 1;
 	uint32_t tc_val = TMR4K_FROM_10NS(t) + 1;
 	while (LPC_TMR16B1->TC < tc_val);
+}
+
+void timer_wait_us(uint32_t t) {
+	timer_wait(t * 100);
 }

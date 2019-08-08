@@ -12,8 +12,13 @@
 
 extern volatile int16_t imu_values[7];
 
-uint8_t imu_init();
+// when wint other than zero, interrupt handling is enabled
+uint8_t imu_init(uint8_t wint);
+
 void imu_wait_new_data();
 void imu_read_values();
+
+// define this function to handle data available events
+void imu_handler();
 
 #endif /* DEV_IMU_H_ */

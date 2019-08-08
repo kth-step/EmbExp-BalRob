@@ -8,9 +8,9 @@
 #ifndef DEV_UART_H_
 #define DEV_UART_H_
 
-#include <stdint.h>
-
 void uart_init();
-uint8_t uart_read_ready();
+
+int uart_write(char c);
+int uart_read();
 
 #endif /* DEV_UART_H_ */

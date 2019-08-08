@@ -13,13 +13,13 @@
 #include <cr_section_macros.h>
 
 #include <dev/hw.h>
-#include <dev/uart.h>
 #include <dev/ui.h>
 #include <dev/motor.h>
 #include <dev/timer.h>
 #include <dev/imu.h>
 
-#include <stdio.h>
+#include <io.h>
+#include <pid.h>
 
 
 int main(void) {
@@ -27,15 +27,14 @@ int main(void) {
 	hw_gpio_init();
 
 	ui_init();
-	uart_init();
+	io_init();
+	io_info("");
+	io_info("--------------------------------");
+	io_info("io ready!");
+
 	motor_init();
 	timer_init();
-
-	printf("\r\n");
-	printf("--------------------------------\r\n");
-	printf("Helloooooo there %d", 44);
-	printf("\r\n");
-	printf("--------------------------------\r\n");
+	io_info("motors and timers ready!");
 
 	/*
 	if (motor_get_status()) {
@@ -47,42 +46,51 @@ int main(void) {
 
 	int imu_init_result = 55;
 	for (int i = 0; i < 3; i++) {
-		imu_init_result = imu_init();
+		imu_init_result = imu_init(1); // enable interrupt handling
 		if (!imu_init_result)
 			break;
 	}
 	if (imu_init_result) {
-		printf("imu stuck!!!\r\n");
+		io_error("imu stuck!");
 		while (1);
 	}
-	printf("--------------------------------\r\n");
+	io_info("startup done!");
+	io_info("--------------------------------");
+
+	pid();
 
     while(1) {
 
     	// prepare user input
         int i;
+        /*
     	printf("input: ");
     	fflush(stdout);
+    	*/
 
     	// wait until a byte arrives
-    	while (!uart_read_ready()) {
-            char b = ui_get_button();
-            ui_set_led(0, b);
-            ui_set_led(1, b);
+    	//while (!uart_read_ready()) {
+		char b = ui_get_button();
+		ui_set_led(0, b);
+		ui_set_led(1, b);
 
-            imu_read_values();
-            timer_start();
-            imu_wait_new_data();
-            uint32_t res_val = timer_read();
-            //timer_start();
-            //if (res_val < 840000 || res_val > 900000)
-            //printf("imu read took: %lu * 10ns\r\n",res_val);
-            printf("%d\t%d\t%d\r\n", imu_values[0], imu_values[1], imu_values[2]);
-    	}
+		/*
+		imu_read_values();
+		timer_start();
+		imu_wait_new_data();
+		uint32_t res_val = timer_read();
+		//timer_start();
+		//if (res_val < 840000 || res_val > 900000)
+		printf("imu read took: %lu * 10ns\r\n",res_val);
+		printf("%d\t%d\t%d\r\n", imu_values[0], imu_values[1], imu_values[2]);
+		*/
+    	//}
 
     	// handle one line
+    	/*
         scanf("%d", &i);
         printf("hello %d done.\r\n", i);
+        */
 
         //timer_start();
         //timer_wait(10*100*1000*1000);
