@@ -19,6 +19,21 @@ IN1-2
 IN3-4
 - R/PIO1_1/AD2/CT32B1_MAT0
 - R/PIO1_2/AD3/CT32B1_MAT1
+
+
+====================================
+
+
+Motor (L298) 2kHz max
+------------
+PWML = PIO0_8/CT16B0_MAT0
+INL1 = PIO0_9
+INL2 = PIO3_1
+
+PWMR = PIO1_1/CT32B1_MAT0
+INR1 = PIO1_2
+INR2 = PIO 3_2
+
  */
 
 
@@ -30,6 +45,8 @@ IN3-4
 
 void motor_init()
 {
+	/*
+	////////////// DRV8833 //////////////////
 	//PIO1_0
 	LPC_IOCON->R_PIO1_0  &= ~0x07;
 	LPC_IOCON->R_PIO1_0  |= 0x01;
@@ -52,35 +69,133 @@ void motor_init()
 	//PIO0_9
 	hw_gpio_set_dir(0,9,1);
 	hw_gpio_set(0,9,0);
+	*/
+
+	////////////////// L298 ////////////////////
+	//PIO0_8 (PWML)
+	LPC_IOCON->PIO0_8  &= ~0x07;
+	LPC_IOCON->PIO0_8  |= 0x02;   // PIO0_8=0, CT16B0_MAT0=2
+	hw_gpio_set_dir(0,8,1);
+	hw_gpio_set(0,8,0);
+	//PIO0_9
+	LPC_IOCON->PIO0_9  &= ~0x07;
+	LPC_IOCON->PIO0_9  |= 0x00;
+	hw_gpio_set_dir(0,9,1);
+	hw_gpio_set(0,9,0);
+	//PIO3_1
+	LPC_IOCON->PIO3_1  &= ~0x07;
+	LPC_IOCON->PIO3_1  |= 0x00;
+	hw_gpio_set_dir(3,1,1);
+	hw_gpio_set(3,1,0);
+
+	//PIO1_1 (PWMR)
+	LPC_IOCON->R_PIO1_1  &= ~0x07;
+	LPC_IOCON->R_PIO1_1  |= 0x03;   // PIO1_1=1, CT32B1_MAT0=3
+	hw_gpio_set_dir(1,1,1);
+	hw_gpio_set(1,1,0);
+	//PIO1_2
+	LPC_IOCON->R_PIO1_2  &= ~0x07;
+	LPC_IOCON->R_PIO1_2  |= 0x01;
+	hw_gpio_set_dir(1,2,1);
+	hw_gpio_set(1,2,0);
+	//PIO3_2
+	LPC_IOCON->PIO3_2  &= ~0x07;
+	LPC_IOCON->PIO3_2  |= 0x00;
+	hw_gpio_set_dir(3,2,1);
+	hw_gpio_set(3,2,0);
+
+#define TMR_PCLK (12 * 1000 * 1000)
+#define TMR_FREQ 2000
+#define MOTOR_MAX_VAL (TMR_PCLK/TMR_FREQ)
+#if MOTOR_MAX_VAL >= (32768-1)
+#error "something might not fit in the timer registers, check this"
+#endif
+#define MOTOR_START_VAL (MOTOR_MAX_VAL * 18 / 60)
 
 	// initialize timers and setup for PWM
+	// setup timer match
+	LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 7);
+	LPC_TMR16B0->PR = 0; // no prescaler
+	LPC_TMR16B0->MR3 = (MOTOR_MAX_VAL) - 1; // period
+	LPC_TMR16B0->MR0 = LPC_TMR16B0->MR3 + 1;
+	LPC_TMR16B0->MCR = (1 << 10);
+	LPC_TMR16B0->PWMC = 1 << 0;
+
+	LPC_TMR16B0->TCR = 1;
+
+
+
+	LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 10);
+	LPC_TMR32B1->PR = 0; // no prescaler
+	LPC_TMR32B1->MR3 = (MOTOR_MAX_VAL) - 1; // period
+	LPC_TMR32B1->MR0 = LPC_TMR32B1->MR3 + 1;
+	LPC_TMR32B1->MCR = (1 << 10);
+	LPC_TMR32B1->PWMC = 1 << 0;
+
+	LPC_TMR32B1->TCR = 1;
 }
 
 char motor_get_status() {
-	return !hw_gpio_get(1,0);
+	//return !hw_gpio_get(1,0);
+	return 0;
 }
 
+int motor_prep_input(int r) {
+	if (r < 0)
+		r = -r;
+
+	r = r > MOTOR_MAX_VAL ? MOTOR_MAX_VAL : r;
+
+	r = r < MOTOR_START_VAL ? (r < MOTOR_START_VAL / 2 ? 0 : MOTOR_START_VAL) : r;
+
+	r = MOTOR_MAX_VAL - r;
+
+	return r;
+}
+
+void motor_set_l(int l) {
+	if (l < 0) {
+		hw_gpio_set(0,9,1);
+		hw_gpio_set(3,1,0);
+	} else {
+		hw_gpio_set(0,9,0);
+		hw_gpio_set(3,1,1);
+	}
+
+	l = motor_prep_input(l);
+
+	if (l == MOTOR_MAX_VAL) {
+		LPC_TMR16B0->MR0 = LPC_TMR16B0->MR3 + 1;
+	} else {
+		LPC_TMR16B0->MR0 = l;
+	}
+}
+
+void motor_set_r(int r) {
+	if (r < 0) {
+		hw_gpio_set(1,2,0);
+		hw_gpio_set(3,2,1);
+	} else {
+		hw_gpio_set(1,2,1);
+		hw_gpio_set(3,2,0);
+	}
+
+	r = motor_prep_input(r);
+
+	if (r == MOTOR_MAX_VAL) {
+		LPC_TMR32B1->MR0 = LPC_TMR32B1->MR3 + 1;
+	} else {
+		LPC_TMR32B1->MR0 = r;
+	}
+}
 
 void motor_set(int l, int r) {
-	if (l < 0) {
-		hw_gpio_set(1,1,1);
-		hw_gpio_set(1,2,0);
-	} else if (l == 0) {
-		hw_gpio_set(1,1,0);
-		hw_gpio_set(1,2,0);
-	} else {
-		hw_gpio_set(1,1,0);
-		hw_gpio_set(1,2,1);
-	}
-
-	if (r < 0) {
-		hw_gpio_set(0,8,0);
-		hw_gpio_set(0,9,1);
-	} else if (r == 0) {
-		hw_gpio_set(0,8,0);
-		hw_gpio_set(0,9,0);
-	} else {
-		hw_gpio_set(0,8,1);
-		hw_gpio_set(0,9,0);
-	}
+	motor_set_l(l);
+	motor_set_r(r);
 }
+
+void motor_set_f(float l, float r) {
+	motor_set(l*MOTOR_MAX_VAL, r*MOTOR_MAX_VAL);
+}
+
+

@@ -6,6 +6,7 @@
  */
 
 #include "LPC11xx.h"
+#include <stdint.h>
 
 /*
 Bluetooth (HC-06)
@@ -53,6 +54,10 @@ void uart_write(char c)
 {
 	while (!(LPC_UART->LSR & 0x20));
 	LPC_UART->THR = c;
+}
+
+uint8_t uart_read_ready() {
+	return (LPC_UART->LSR & 0x1);
 }
 
 char uart_read()
