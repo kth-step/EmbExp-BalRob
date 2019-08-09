@@ -13,7 +13,7 @@ void motor_init();
 // status ok = 0, fault = 1
 char motor_get_status();
 
-// robot front is towards bluetooth/charger
+// robot front is towards gyro
 // l is left, r is right
 // + is to go forward, - is to go backward
 //void motor_set(int l, int r);

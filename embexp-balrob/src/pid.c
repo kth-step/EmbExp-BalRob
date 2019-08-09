@@ -67,7 +67,7 @@ uint8_t pid_msg_read(pid_msg_t* m) {
 #define ALPHA			(0.9934)
 
 // inputs
-volatile uint8_t motor_on = 0;
+volatile uint8_t motor_on = 1;
 volatile float angleTarget = -15;
 volatile float kp = 500.0;
 volatile float ki = 10.0;
@@ -114,6 +114,8 @@ void imu_handler(uint8_t noyield) {
 	// output to motor
 	if (motor_on)
 		motor_set_f(motorPowerNew, motorPowerNew);
+	else
+		motor_set_f(0, 0);
 
 	// finalize the handler with counter maintenance and a time measurement
 	pid_counter++;
