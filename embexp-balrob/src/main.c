@@ -36,19 +36,13 @@ int main(void) {
 	timer_init();
 	io_info("motors and timers ready!");
 
-	/*
-	if (motor_get_status()) {
-		printf("motor fault!\r\n");
-	} else {
-		printf("motor ok.\r\n");
-	}
-	*/
-
 	int imu_init_result = 55;
 	for (int i = 0; i < 3; i++) {
 		imu_init_result = imu_init(1); // enable interrupt handling
-		if (!imu_init_result)
+		if (!imu_init_result) {
+			io_info("imu init done.");
 			break;
+		}
 	}
 	if (imu_init_result) {
 		io_error("imu stuck!");
@@ -60,75 +54,9 @@ int main(void) {
 	pid();
 
     while(1) {
-
-    	// prepare user input
-        int i;
-        /*
-    	printf("input: ");
-    	fflush(stdout);
-    	*/
-
-    	// wait until a byte arrives
-    	//while (!uart_read_ready()) {
 		char b = ui_get_button();
 		ui_set_led(0, b);
 		ui_set_led(1, b);
-
-		/*
-		imu_read_values();
-		timer_start();
-		imu_wait_new_data();
-		uint32_t res_val = timer_read();
-		//timer_start();
-		//if (res_val < 840000 || res_val > 900000)
-		printf("imu read took: %lu * 10ns\r\n",res_val);
-		printf("%d\t%d\t%d\r\n", imu_values[0], imu_values[1], imu_values[2]);
-		*/
-    	//}
-
-    	// handle one line
-    	/*
-        scanf("%d", &i);
-        printf("hello %d done.\r\n", i);
-        */
-
-        //timer_start();
-        //timer_wait(10*100*1000*1000);
-        //uint32_t res_val = timer_read();
-        //printf("puh:%d\r\n",res_val);
-
-        //motor_set_f(i/((float)6000),0);
-
-        /*
-		switch (i) {
-			case 1:
-				ui_set_led(0,1);
-				break;
-			case 2:
-				ui_set_led(1,1);
-				break;
-
-			case 3:
-				motor_set(1,0);
-				break;
-			case 4:
-				motor_set(-1,0);
-				break;
-
-			case 5:
-				motor_set(0,1);
-				break;
-			case 6:
-				motor_set(0,-1);
-				break;
-
-			default:
-				ui_set_led(0,0);
-				ui_set_led(1,0);
-				motor_set(0,0);
-				break;
-		}
-		*/
     }
 
     return 0;

@@ -54,11 +54,11 @@ uint8_t imu_write(uint8_t addr, uint8_t val) {
 	return 0;
 }
 
+#define IMU_WRITE_AND_RETURN(a,v) {uint8_t temp;if ((temp = imu_write(a, v))) return temp;}
+
 
 uint8_t set_offset_(int16_t acc_x_off, int16_t acc_z_off, int16_t gyro_y_off)
 {
-	uint8_t temp;
-
 	int8_t acc_x_offsetH = acc_x_off >> 8;
 	int8_t acc_x_offsetL = acc_x_off & 0x00FF;
 	int8_t acc_z_offsetH = acc_z_off >> 8;
@@ -73,27 +73,20 @@ uint8_t set_offset_(int16_t acc_x_off, int16_t acc_z_off, int16_t gyro_y_off)
 #define GYRO_Y_OFF_H			0x15
 #define GYRO_Y_OFF_L			0x16
 
-	if ((temp = imu_write(ACC_X_OFF_H, acc_x_offsetH)))
-		return temp;
-	if ((temp = imu_write(ACC_X_OFF_L, acc_x_offsetL)))
-		return temp;
+	IMU_WRITE_AND_RETURN(ACC_X_OFF_H, acc_x_offsetH);
+	IMU_WRITE_AND_RETURN(ACC_X_OFF_L, acc_x_offsetL);
 
-	if ((temp = imu_write(ACC_Z_OFF_H, acc_z_offsetH)))
-		return temp;
-	if ((temp = imu_write(ACC_Z_OFF_L, acc_z_offsetL)))
-		return temp;
+	IMU_WRITE_AND_RETURN(ACC_Z_OFF_H, acc_z_offsetH);
+	IMU_WRITE_AND_RETURN(ACC_Z_OFF_L, acc_z_offsetL);
 
-	if ((temp = imu_write(GYRO_Y_OFF_H, gyro_y_offsetH)))
-		return temp;
-	if ((temp = imu_write(GYRO_Y_OFF_L, gyro_y_offsetL)))
-		return temp;
+	IMU_WRITE_AND_RETURN(GYRO_Y_OFF_H, gyro_y_offsetH);
+	IMU_WRITE_AND_RETURN(GYRO_Y_OFF_L, gyro_y_offsetL);
 
 	return 0;
 }
 
 uint8_t imu_init(uint8_t wint)
 {
-	uint8_t temp;
 	//Init AD0, pull down valuesistor
 	LPC_IOCON->PIO1_10  &= ~0x1F;
 	LPC_IOCON->PIO1_10  |= 0x08;
@@ -102,36 +95,30 @@ uint8_t imu_init(uint8_t wint)
 	I2CInit(I2CMASTER);
 
 	// sample rate 333Hz ( we enable DLPF afterwards, so 1kHz clock base )
-	if ((temp = imu_write(0x19, (5) - 1)))
-		return temp;
+	IMU_WRITE_AND_RETURN(0x19, (5) - 1);
 	// DLPF enabled, 100Hz
-	if ((temp = imu_write(0x1A, 0x3)))
-		return temp;
+	IMU_WRITE_AND_RETURN(0x1A, 0x3);
 
 	// Gyro scale range set to +- 250°/s, LSB sensitivity 131 LSB/(°/s)
-	if ((temp = imu_write(0x1B, 0x00)))
-		return temp;
+	IMU_WRITE_AND_RETURN(0x1B, 0x00);
 	// Acc scale range set to +- 2g, LSB sensitivity 16 384 LSB/g
-	if ((temp = imu_write(0x1C, 0x00)))
-		return temp;
+	IMU_WRITE_AND_RETURN(0x1C, 0x00);
 
 	// interrupt pin high active, stay active until data read
-	if ((temp = imu_write(0x37, 0x30)))
-		return temp;
+	IMU_WRITE_AND_RETURN(0x37, 0x30);
 
 	// interrupt when new data is ready
-	if ((temp = imu_write(0x38, 0x01)))
-		return temp;
+	IMU_WRITE_AND_RETURN(0x38, 0x01);
 
 	// Power management (here clock source is Internal 8MHz oscillator)
-	if ((temp = imu_write(0x6B, 0x00)))
-		return temp;
+	IMU_WRITE_AND_RETURN(0x6B, 0x00);
 
 	// configure offsets with precalibrated values
 #define ACC_X_OFF				-1251
 #define ACC_Z_OFF				910
 #define GYRO_Y_OFF				-18
 	//calculate_offset(ACC_X_OFF, ACC_Z_OFF, GYRO_Y_OFF);
+	uint8_t temp;
 	if ((temp = set_offset_(ACC_X_OFF, ACC_Z_OFF, GYRO_Y_OFF)))
 		return temp;
 
@@ -167,7 +154,6 @@ uint8_t imu_init(uint8_t wint)
 	else
 		NVIC_DisableIRQ(EINT1_IRQn);
 
-	io_info("imu init done.");
 	return 0;
 }
 
@@ -187,7 +173,7 @@ void PIOINT1_IRQHandler(void)
 	// run imu_handler, if level sensitive imu needs to be read in the handler
 	imu_handler();
 
-	// TODO: check whether handler was too slow (interrupt set again?)
+	// check whether handler was too slow (is the interrupt already set again?)
 	if (LPC_GPIO1->MIS & (1 << 11))
 		io_debug("imu handler was too slow.");
 }

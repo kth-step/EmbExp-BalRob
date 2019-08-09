@@ -17,77 +17,138 @@
 
 
 
-#define RAD_TO_DEG		57.29578
 
-const float sampleTime = 0.0033;
-const float alpha = 0.9934;
+// -------------------------------------------------------------------------------------
+// message interface
+// -------------------------------------------------------------------------------------
 
-volatile float previousAngle = 0;
-volatile float errorPrev = 0;
-volatile float errorSum = 0;
 
-volatile float accAngle = 0;
-volatile float gyrAngle = 0;
+typedef struct pid_msg
+{
+	uint32_t pid_sampletime;
+	uint32_t pid_handlertime;
+	uint32_t pid_counter;
+
+	float angle;
+	float error;
+	float errorDiff;
+	float errorSum;
+} pid_msg_t;
+
+volatile uint8_t msg_flag = 0;
+volatile pid_msg_t pid_msg_last;
+
+uint8_t pid_msg_write(pid_msg_t m) {
+	if (msg_flag)
+		return 1;
+
+	pid_msg_last = m;
+	msg_flag = 1;
+	return 0;
+}
+uint8_t pid_msg_read(pid_msg_t* m) {
+	if (!msg_flag)
+		return 1;
+
+	*m = pid_msg_last;
+	msg_flag = 0;
+	return 0;
+}
 
 
 // -------------------------------------------------------------------------------------
+// pid controller in the imu_handler
+// -------------------------------------------------------------------------------------
 
-float kp = 500.0;
-float ki = 10.0;
-float kd = 1.0;
+#define RAD_TO_DEG		(57.29578)
+#define SAMPLE_TIME		(0.005)
+#define ALPHA			(0.9934)
 
-volatile float motor_on = 0;
+// inputs
+volatile uint8_t motor_on = 0;
+volatile float angleTarget = -15;
+volatile float kp = 500.0;
+volatile float ki = 10.0;
+volatile float kd = 1.0;
 
-volatile uint32_t pid_handlertime;
-volatile uint32_t pid_sampletime;
+// output
+volatile float motorPower = 0;
 
-void pid() {
-	while (1) {
-		//printf_new("time handler: %i\r\n", pid_handlertime / 100);
-		//printf_new("time sample: %i\r\n", pid_sampletime / 100);
+// controller state
+float angleLast = 0;
+float errorLast = 0;
+float errorSum = 0;
+uint32_t pid_counter = 0;
 
-		//debug
-        //printf_new("\faccX: %d\taccZ: %d\tgyrY: %d       \r", imu_values[0], imu_values[2], imu_values[5]);
-        //timer_wait_us(100000);
-		printf_new("angle: %f\r\n", previousAngle);
-		//printf_new("acc: %f, gyr: %f\r\n", accAngle, gyrAngle);
-		//printf_new("accgyrDiff: %f\r\n", accAngle - gyrAngle);
-	}
-}
-
-#include "LPC11xx.h"
 void imu_handler() {
-	pid_sampletime = timer_read();
+	// start by taking the time since the last run, restarting the timer and reading the imu
+	uint32_t pid_sampletime = timer_read();
 	timer_start();
 	imu_read_values();
 
-	// now do some handling
+	// pick out the relevant imu values
     int16_t accX = imu_values[0];
     int16_t accZ = imu_values[2];
     int16_t gyrY = imu_values[5];
 
-	// calc angle
-	accAngle =  (accZ == 0) ? 0 : (atan2(accX,accZ) * RAD_TO_DEG);
-	float gyroSpeed = -((((int32_t)gyrY)  * 390) / 32768.0);
-	float gyrAngleDiff = gyroSpeed * sampleTime;
-	//gyrAngle = gyrAngle + gyrAngleDiff;
-	float currentAngle = (alpha * (previousAngle + gyrAngleDiff)) + ((1-alpha) * accAngle);
-	previousAngle = currentAngle;
+	// calc angle using complementary filter
+	float accAngle =  (accZ == 0) ? 0 : (atan2(accX,accZ) * RAD_TO_DEG);
+	float gyrAngleDiff = (-((((int32_t)gyrY)  * 390) / 32768.0)) * SAMPLE_TIME;
 
-	// maintain error values
-	float error = currentAngle - (-15);
-	float errorDiff = error - errorPrev;
+	float angle = (ALPHA * (angleLast + gyrAngleDiff)) + ((1-ALPHA) * accAngle);
+	angleLast = angle;
+
+	// compute error and its derivative and integral
+	float error = angle - angleTarget;
+	float errorDiff = error - errorLast;
+	errorLast = error;
 	float errorSumNew = errorSum + (error);
 	errorSum = errorSumNew > 300 ? 300 : (errorSumNew < -300 ? -300 : errorSumNew);
 
-	// apply pid
-	float motorPower = kp * error + ki * errorSum + kd * errorDiff;
+	// compute output signal
+	float motorPowerNew = (kp * error) + (ki * errorSum * SAMPLE_TIME) + (kd * errorDiff / SAMPLE_TIME);
+	motorPower = motorPowerNew;
 
 	// output to motor
 	if (motor_on)
-		motor_set_f(motorPower, motorPower);
+		motor_set_f(motorPowerNew, motorPowerNew);
 
-	// finalize the handler with measurements
-	pid_handlertime = timer_read();
-	//printf_new("time: %i\r\n", pid_handlertime);
+	// finalize the handler with counter maintenance and a time measurement
+	pid_counter++;
+	uint32_t pid_handlertime = timer_read();
+
+	// prepare message
+	pid_msg_write((pid_msg_t){ .pid_sampletime = pid_sampletime,
+							   .pid_handlertime = pid_handlertime,
+							   .pid_counter = pid_counter,
+
+							   .angle = angle,
+							   .error = error,
+							   .errorDiff = errorDiff,
+							   .errorSum = errorSumNew});
 }
+
+
+// -------------------------------------------------------------------------------------
+// communication loop
+// -------------------------------------------------------------------------------------
+
+
+void pid() {
+	pid_msg_t pid_msg;
+	while (1) {
+		// read the latest pid message
+		while (pid_msg_read(&pid_msg));
+
+		printf_new("time handler: %ius\r\n", TIMER_TO_US(pid_msg.pid_handlertime));
+		printf_new("time sample: %ius\r\n", TIMER_TO_US(pid_msg.pid_sampletime));
+		printf_new("counter: %i\r\n", pid_msg.pid_counter);
+
+		//debug
+        //printf_new("\faccX: %d\taccZ: %d\tgyrY: %d       \r", imu_values[0], imu_values[2], imu_values[5]);
+		//printf_new("angle: %f\r\n", angleLast);
+	}
+}
+
+
+
