@@ -161,21 +161,21 @@ void imu_wait_new_data() {
 	while (!hw_gpio_get(1,11));
 }
 
-__attribute__ ((weak)) void imu_handler() {
+__attribute__ ((weak)) void imu_handler(uint8_t noyield) {
 	imu_read_values();
 }
 
+uint8_t last_noyield = 0;
 void PIOINT1_IRQHandler(void)
 {
 	// clear interrupt for pin
 	LPC_GPIO1->IC = (1 << 11); // has no effect if in level sensitive mode
 
 	// run imu_handler, if level sensitive imu needs to be read in the handler
-	imu_handler();
+	imu_handler(last_noyield);
 
 	// check whether handler was too slow (is the interrupt already set again?)
-	if (LPC_GPIO1->MIS & (1 << 11))
-		io_debug("imu handler was too slow.");
+	last_noyield = (LPC_GPIO1->MIS & (1 << 11)) >> 11;
 }
 
 

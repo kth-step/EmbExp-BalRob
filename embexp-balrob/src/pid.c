@@ -33,6 +33,8 @@ typedef struct pid_msg
 	float error;
 	float errorDiff;
 	float errorSum;
+
+	uint8_t last_noyield;
 } pid_msg_t;
 
 volatile uint8_t msg_flag = 0;
@@ -80,7 +82,7 @@ float errorLast = 0;
 float errorSum = 0;
 uint32_t pid_counter = 0;
 
-void imu_handler() {
+void imu_handler(uint8_t noyield) {
 	// start by taking the time since the last run, restarting the timer and reading the imu
 	uint32_t pid_sampletime = timer_read();
 	timer_start();
@@ -117,6 +119,8 @@ void imu_handler() {
 	pid_counter++;
 	uint32_t pid_handlertime = timer_read();
 
+	//TIMER_WAIT_US(2300);
+
 	// prepare message
 	pid_msg_write((pid_msg_t){ .pid_sampletime = pid_sampletime,
 							   .pid_handlertime = pid_handlertime,
@@ -125,7 +129,9 @@ void imu_handler() {
 							   .angle = angle,
 							   .error = error,
 							   .errorDiff = errorDiff,
-							   .errorSum = errorSumNew});
+							   .errorSum = errorSumNew,
+
+							   .last_noyield = noyield});
 }
 
 
@@ -139,6 +145,9 @@ void pid() {
 	while (1) {
 		// read the latest pid message
 		while (pid_msg_read(&pid_msg));
+
+		if (pid_msg.last_noyield)
+			io_debug("last imu handler was too slow.");
 
 		printf_new("time handler: %ius\r\n", TIMER_TO_US(pid_msg.pid_handlertime));
 		printf_new("time sample: %ius\r\n", TIMER_TO_US(pid_msg.pid_sampletime));

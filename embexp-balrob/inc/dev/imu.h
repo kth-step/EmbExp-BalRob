@@ -19,6 +19,6 @@ void imu_wait_new_data();
 void imu_read_values();
 
 // define this function to handle data available events
-void imu_handler();
+void imu_handler(uint8_t noyield);
 
 #endif /* DEV_IMU_H_ */
