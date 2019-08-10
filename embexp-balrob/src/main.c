@@ -33,17 +33,6 @@ int main(void) {
 	io_info("io ready!");
 
 	motor_init();
-	motor_set_f(1, 1);
-	motor_set_f(0.8, 0.8);
-	motor_set_f(0.5, 0.5);
-	motor_set_f(0.2, 0.2);
-	motor_set_f(0.5, 0);
-	motor_set_f(-0.5, 0);
-	motor_set_f(0, 0.5);
-	motor_set_f(0, -0.5);
-	motor_set_f(0,0);
-	while(1);
-
 	timer_init();
 	io_info("motors and timers ready!");
 

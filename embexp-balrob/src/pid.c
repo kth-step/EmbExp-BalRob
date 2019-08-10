@@ -66,14 +66,48 @@ uint8_t pid_msg_read(pid_msg_t* m) {
 #define SAMPLE_TIME		(0.005)
 #define ALPHA			(0.9934)
 
+//#define BOT_LEGO
+#define BOT_MINI
+
+#ifdef BOT_LEGO
+#define GYR_SCALE 390
+#define ANGLETARGET -15
+#endif
+#ifdef BOT_MINI
+#define GYR_SCALE 250
+#define ANGLETARGET 6.2
+/*
+// somewhat working
+#define INIT_KP 0.1
+#define INIT_KI 0.2
+#define INIT_KD 0.0001
+*/
+/*
+// way better
+#define INIT_KP 0.15
+#define INIT_KI 0.9
+#define INIT_KD 0.002
+*/
+//quite stable
+#define INIT_KP 0.15
+#define INIT_KI 0.9
+#define INIT_KD 0.003
+#endif
+
+
 // inputs
 volatile uint8_t motor_on = 1;
-volatile float angleTarget = -15;
-volatile float kp = 500.0;
-volatile float ki = 10.0;
-volatile float kd = 1.0;
+volatile float angleTarget = ANGLETARGET;
+volatile float kp = INIT_KP;
+volatile float ki = INIT_KI;
+volatile float kd = INIT_KD;
 
 // output
+//#define DEBUG_ANGLESCALE
+#ifdef DEBUG_ANGLESCALE
+volatile float accAngle_ = 0;
+volatile float gyrAngle_ = 0;
+#endif
 volatile float motorPower = 0;
 
 // controller state
@@ -95,7 +129,12 @@ void imu_handler(uint8_t noyield) {
 
 	// calc angle using complementary filter
 	float accAngle =  (accZ == 0) ? 0 : (atan2(accX,accZ) * RAD_TO_DEG);
-	float gyrAngleDiff = (-((((int32_t)gyrY)  * 390) / 32768.0)) * SAMPLE_TIME;
+	float gyrAngleDiff = (-((((int32_t)gyrY)  * GYR_SCALE) / 32768.0)) * SAMPLE_TIME;
+
+#ifdef DEBUG_ANGLESCALE
+	accAngle_  = accAngle;
+	gyrAngle_ += gyrAngleDiff;
+#endif
 
 	float angle = (ALPHA * (angleLast + gyrAngleDiff)) + ((1-ALPHA) * accAngle);
 	angleLast = angle;
@@ -151,13 +190,18 @@ void pid() {
 		if (pid_msg.last_noyield)
 			io_debug("last imu handler was too slow.");
 
-		printf_new("time handler: %ius\r\n", TIMER_TO_US(pid_msg.pid_handlertime));
-		printf_new("time sample: %ius\r\n", TIMER_TO_US(pid_msg.pid_sampletime));
-		printf_new("counter: %i\r\n", pid_msg.pid_counter);
+		//printf_new("time handler: %ius\r\n", TIMER_TO_US(pid_msg.pid_handlertime));
+		//printf_new("time sample: %ius\r\n", TIMER_TO_US(pid_msg.pid_sampletime));
+		//printf_new("counter: %i\r\n", pid_msg.pid_counter);
 
 		//debug
-        //printf_new("\faccX: %d\taccZ: %d\tgyrY: %d       \r", imu_values[0], imu_values[2], imu_values[5]);
-		//printf_new("angle: %f\r\n", angleLast);
+#ifdef DEBUG_ANGLESCALE
+		printf_new("acc: %f\t gyr: %f\r\n", accAngle_, gyrAngle_);
+#endif
+        //printf_new("\faccX: %d\taccZ: %d\tgyrY: %d       ", imu_values[0], imu_values[2], imu_values[5]);
+        //TIMER_WAIT_US(100000);
+
+		printf_new("angle: %f\r\n", angleLast);
 	}
 }
 
