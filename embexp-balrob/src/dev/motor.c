@@ -60,7 +60,6 @@ INR2 = PIO 3_2
 #if MOTOR_MAX_VAL >= (32768-1)
 #error "something might not fit in the timer registers, check this"
 #endif
-// TODO: set this to zero
 //#define MOTOR_START_VAL (MOTOR_MAX_VAL * 18 / 60)
 
 void motor_timer_init() {
@@ -96,7 +95,9 @@ int motor_prep_input(int r) {
 
 	r = r > MOTOR_MAX_VAL ? MOTOR_MAX_VAL : r;
 
-	//r = r < MOTOR_START_VAL ? (r < MOTOR_START_VAL / 2 ? 0 : MOTOR_START_VAL) : r;
+#ifdef MOTOR_START_VAL
+	r = r < MOTOR_START_VAL ? (r < MOTOR_START_VAL / 2 ? 0 : MOTOR_START_VAL) : r;
+#endif
 
 	r = MOTOR_MAX_VAL - r;
 
