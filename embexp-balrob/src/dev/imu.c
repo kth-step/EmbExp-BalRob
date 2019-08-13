@@ -94,6 +94,11 @@ uint8_t imu_init(uint8_t wint)
 	//Init i2c bus
 	I2CInit(I2CMASTER);
 
+	// reset the imu
+	IMU_WRITE_AND_RETURN(0x6B, 0x80);
+	IMU_WRITE_AND_RETURN(0x6B, 0x00);
+	IMU_WRITE_AND_RETURN(0x6A, 0x01);
+
 	// sample rate 333Hz ( we enable DLPF afterwards, so 1kHz clock base )
 	IMU_WRITE_AND_RETURN(0x19, (5) - 1);
 	// DLPF enabled, 100Hz

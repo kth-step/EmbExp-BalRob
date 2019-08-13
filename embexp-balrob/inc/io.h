@@ -14,10 +14,11 @@ void io_init();
 // returns negative number if there is no data available, otherwise channel id
 int in_handle();
 // data that has been produced last
-extern uint32_t in_data;
+extern int32_t in_data;
 
 
-void out_data(uint8_t ch, uint32_t data);
+void out_data(uint8_t ch, uint8_t* data, uint8_t len);
+void out_data_int(uint8_t ch, int32_t data);
 
 void out_info(char *fmt, ...);
 void out_debug(char *fmt, ...);

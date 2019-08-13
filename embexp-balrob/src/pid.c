@@ -75,7 +75,8 @@ uint8_t pid_msg_read(pid_msg_t* m) {
 #endif
 #ifdef BOT_MINI
 #define GYR_SCALE 250
-#define ANGLETARGET 6.2
+//#define ANGLETARGET 6.2
+#define ANGLETARGET 5.88
 /*
 // somewhat working
 #define INIT_KP 0.1
@@ -89,14 +90,20 @@ uint8_t pid_msg_read(pid_msg_t* m) {
 #define INIT_KD 0.002
 */
 //quite stable
+/*
 #define INIT_KP 0.15
 #define INIT_KI 0.9
 #define INIT_KD 0.003
+*/
+//seems even better
+#define INIT_KP 0.15
+#define INIT_KI 0.9
+#define INIT_KD 0.00375
 #endif
 
 
 // inputs
-volatile uint8_t motor_on = 1;
+volatile uint8_t motor_on = 0;
 volatile float angleTarget = ANGLETARGET;
 volatile float kp = INIT_KP;
 volatile float ki = INIT_KI;
@@ -184,12 +191,52 @@ void imu_handler(uint8_t noyield) {
 void pid() {
 	pid_msg_t pid_msg;
 	while (1) {
+		int in_ch;
+
+		while ((in_ch = in_handle()) == -3);
+
+		switch (in_ch) {
+		case -1:
+			// nothing available
+			break;
+		case -2:
+			// start sync error
+			break;
+		case 50:
+			motor_on = in_data;
+			break;
+		case 60:
+			kp = *((float*)&in_data);
+			out_info("KP! %iu", pid_msg.pid_counter);
+			break;
+		case 61:
+			ki = *((float*)&in_data);
+			out_info("KI! %iu", pid_msg.pid_counter);
+			break;
+		case 62:
+			kd = *((float*)&in_data);
+			out_info("KD! %iu", pid_msg.pid_counter);
+			break;
+		case 70:
+			angleTarget = *((float*)&in_data);
+			out_info("angletarget! %iu", pid_msg.pid_counter);
+			break;
+		default:
+			if (in_ch >= 0) {
+				// unknown channel
+			} else {
+				// some error
+			}
+			break;
+		}
+
 		// read the latest pid message
 		while (pid_msg_read(&pid_msg));
 
 		if (pid_msg.last_noyield)
 			out_debug("last imu handler was too slow.");
 
+		out_data(10, (uint8_t*)&pid_msg, sizeof(pid_msg));
 		//printf_new("time handler: %ius\r\n", TIMER_TO_US(pid_msg.pid_handlertime));
 		//printf_new("time sample: %ius\r\n", TIMER_TO_US(pid_msg.pid_sampletime));
 		//printf_new("counter: %i\r\n", pid_msg.pid_counter);
@@ -201,7 +248,12 @@ void pid() {
         //printf_new("\faccX: %d\taccZ: %d\tgyrY: %d       ", imu_values[0], imu_values[2], imu_values[5]);
         //TIMER_WAIT_US(100000);
 
-		out_info("angle: %f\r\n", angleLast);
+		/*
+		int32_t angle = (int32_t)(angleLast * 1000);
+		int32_t angle_h = angle / 1000;
+		int32_t angle_l = (angle < 0 ? -angle : angle)%1000;
+		out_info("angle: %d.%d", angle_h, angle_l);
+		*/
 	}
 }
 

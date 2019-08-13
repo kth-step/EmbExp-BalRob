@@ -38,7 +38,8 @@ void uart_init()
     // set up line control, 8 data bits + 1 stop bit
     LPC_UART->LCR = (0x3 << 0);
 
-    // FIFO disabled?
+    // enable hardware FIFO
+    LPC_UART->FCR = 0x07;
 
     // enable RDA interrupt
 	//LPC_UART->IER = 1;
