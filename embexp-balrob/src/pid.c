@@ -155,11 +155,24 @@ void imu_handler(uint8_t noyield) {
 // -------------------------------------------------------------------------------------
 
 
+uint8_t button_last = 0;
 void pid() {
 	pid_msg_t pid_msg;
+
+	// turn red led on
+	ui_set_led(0, 1);
+	ui_set_led(1, 1);
+
 	while (1) {
 		int in_ch;
 
+		// handle button, hope that the loop is so slow that it is already debounced
+		uint8_t button = ui_get_button();
+		if (button != button_last && button == 0)
+			motor_on = !motor_on;
+		button_last = button;
+
+		// handle io
 		while ((in_ch = in_handle()) == -3);
 
 		switch (in_ch) {

@@ -36,7 +36,7 @@ void ui_set_led(int i, char on) {
 		hw_gpio_set(0,11,on?0:1);
 		break;
 	case 1:
-		hw_gpio_set(0,7,on?1:0);
+		hw_gpio_set(0,7,on?0:1);
 		break;
 	default:
 		break;
