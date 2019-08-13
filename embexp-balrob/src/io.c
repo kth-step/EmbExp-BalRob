@@ -7,35 +7,117 @@
 
 #include <dev/uart.h>
 
+#include <stdint.h>
 
 void io_init() {
 	uart_init();
 }
 
-static void printf_string(char *str)
-{
-    while(*str) {
-    	while (uart_write(*str));
-    	str++;
-    }
+/*
+--------------------------------------------------------------------------------------------
+ */
+
+int in_state = 0;
+uint8_t in_ch;
+uint32_t in_data;
+int in_handle() {
+	int c = uart_read();
+	if (c < 0) return -1;
+
+	switch (in_state) {
+	case 0:
+		if (c == 0x55)
+			in_state++;
+		else
+			return -2;
+		break;
+	case 1:
+		in_ch = c;
+		in_data = 0;
+		in_state++;
+		break;
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+		in_data |= c << ((in_state-2) * 8);
+		in_state++;
+		break;
+	case 6:
+		in_state = 0;
+		if (c == 0xFF)
+			return in_ch;
+		else
+			return -4;
+		break;
+	}
+
+	return -3;
 }
 
-void io_info(char* str) {
-	printf_string(str);
-	printf_string("\r\n");
+/*
+--------------------------------------------------------------------------------------------
+ */
+
+#include <stdarg.h>
+#include <stdio.h>
+
+void printf_simple(char *fmt, ...);
+void printf_simple_core(char *fmt, va_list args);
+
+char buffer_txt[300];
+void out_data(uint8_t ch, uint32_t data) {
+	//snprintf(buffer_txt, 300, "hello %d, %lu", ch, data);
+	while (uart_write(0x55));
+	while (uart_write(ch));
+	while (uart_write(data >> (0 * 8)));
+	while (uart_write(data >> (1 * 8)));
+	while (uart_write(data >> (2 * 8)));
+	while (uart_write(data >> (3 * 8)));
+	while (uart_write(0xFF));
 }
 
-void io_debug(char* str) {
-	printf_string("DEBUG: ");
-	printf_string(str);
-	printf_string("\r\n");
+void out_info(char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+
+	while (uart_write(0x55));
+	while (uart_write(0));
+    printf_simple_core(fmt, args);
+	printf_simple("\r\n");
+	while (uart_write(0xFF));
+
+    va_end(args);
 }
 
-void io_error(char* str) {
-	printf_string("ERROR: ");
-	printf_string(str);
-	printf_string("\r\n");
+void out_debug(char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
 
+	while (uart_write(0x55));
+	while (uart_write(1));
+	printf_simple("DEBUG: ");
+    printf_simple_core(fmt, args);
+	printf_simple("\r\n");
+	while (uart_write(0xFF));
+
+    va_end(args);
+}
+
+void out_error(char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+
+	while (uart_write(0x55));
+	while (uart_write(2));
+	printf_simple("ERROR: ");
+    printf_simple_core(fmt, args);
+	printf_simple("\r\n");
+	while (uart_write(0xFF));
+
+    va_end(args);
+
+    // loop forever because of the error
 	while(1);
 }
 
@@ -92,13 +174,20 @@ int _read(int iFileHandle, char *pcBuffer, int iLength) {
 
 
 
-#include <stdarg.h>
 
 void printf_new(const char *fmt, ...);
 
 int uart_write(char c);
 void uart_putchar(char c) {
 	while (uart_write(c));
+}
+
+static void printf_string(char *str)
+{
+    while(*str) {
+    	while (uart_write(*str));
+    	str++;
+    }
 }
 
 /*
@@ -164,16 +253,24 @@ static void printf_float(float f)
 	printf_int((a < 0 ? a * (-1) : a) % 1000);
 }
 
-// -----------------------------------
-void printf_new(const char *fmt, ...)
+// --------------------------------------------------------------
+void printf_simple(char *fmt, ...)
 {
-    int c;
     va_list args;
     va_start(args, fmt);
 
+    printf_simple_core(fmt, args);
+
+    va_end(args);
+}
+
+
+
+void printf_simple_core(char *fmt, va_list args) {
+    int c;
     for(;;) {
         c = *fmt;
-        if(c == '\0') goto cleanup;
+        if(c == '\0') break;
 
         fmt ++;
         if(c == '%') {
@@ -183,7 +280,7 @@ void printf_new(const char *fmt, ...)
             // sanity check?
             if(c == '\0') {
                 uart_putchar(c);
-                goto cleanup;
+                break;
             }
 
             switch(c) {
@@ -216,10 +313,5 @@ void printf_new(const char *fmt, ...)
 
         } else uart_putchar(c);
     }
-
-    /* yes, gotos are evil. we know */
-cleanup:
-    va_end(args);
 }
-
 

@@ -188,7 +188,7 @@ void pid() {
 		while (pid_msg_read(&pid_msg));
 
 		if (pid_msg.last_noyield)
-			io_debug("last imu handler was too slow.");
+			out_debug("last imu handler was too slow.");
 
 		//printf_new("time handler: %ius\r\n", TIMER_TO_US(pid_msg.pid_handlertime));
 		//printf_new("time sample: %ius\r\n", TIMER_TO_US(pid_msg.pid_sampletime));
@@ -196,12 +196,12 @@ void pid() {
 
 		//debug
 #ifdef DEBUG_ANGLESCALE
-		printf_new("acc: %f\t gyr: %f\r\n", accAngle_, gyrAngle_);
+		out_info("acc: %f\t gyr: %f\r\n", accAngle_, gyrAngle_);
 #endif
         //printf_new("\faccX: %d\taccZ: %d\tgyrY: %d       ", imu_values[0], imu_values[2], imu_values[5]);
         //TIMER_WAIT_US(100000);
 
-		printf_new("angle: %f\r\n", angleLast);
+		out_info("angle: %f\r\n", angleLast);
 	}
 }
 

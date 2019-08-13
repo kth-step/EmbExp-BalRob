@@ -28,28 +28,28 @@ int main(void) {
 
 	ui_init();
 	io_init();
-	io_info("");
-	io_info("--------------------------------");
-	io_info("io ready!");
+	out_info("");
+	out_info("--------------------------------");
+	out_info("io ready!");
 
 	motor_init();
 	timer_init();
-	io_info("motors and timers ready!");
+	out_info("motors and timers ready!");
 
 	int imu_init_result = 55;
 	for (int i = 0; i < 3; i++) {
 		imu_init_result = imu_init(1); // enable interrupt handling
 		if (!imu_init_result) {
-			io_info("imu init done.");
+			out_info("imu init done.");
 			break;
 		}
 	}
 	if (imu_init_result) {
-		io_error("imu stuck!");
+		out_error("imu stuck!");
 		while (1);
 	}
-	io_info("startup done!");
-	io_info("--------------------------------");
+	out_info("startup done!");
+	out_info("--------------------------------");
 
 	pid();
 

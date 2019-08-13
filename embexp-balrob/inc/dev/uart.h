@@ -10,6 +10,7 @@
 
 void uart_init();
 
+// returns -1 if the device is busy
 int uart_write(char c);
 int uart_read();
 

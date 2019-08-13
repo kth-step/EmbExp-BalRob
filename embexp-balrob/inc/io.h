@@ -10,15 +10,18 @@
 
 void io_init();
 
-void io_info(char* str);
-void io_debug(char* str);
-void io_error(char* str);
+
+// returns negative number if there is no data available, otherwise channel id
+int in_handle();
+// data that has been produced last
+extern uint32_t in_data;
 
 
+void out_data(uint8_t ch, uint32_t data);
 
-#include <stdarg.h>
-
-void printf_new(const char *fmt, ...);
+void out_info(char *fmt, ...);
+void out_debug(char *fmt, ...);
+void out_error(char *fmt, ...);
 
 
 #endif /* IO_H_ */
