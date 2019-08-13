@@ -10,6 +10,8 @@
 #include <dev/timer.h>
 #include <dev/imu.h>
 
+#include <robot_params.h>
+
 #include <io.h>
 
 #include <stdint.h>
@@ -65,41 +67,6 @@ uint8_t pid_msg_read(pid_msg_t* m) {
 #define RAD_TO_DEG		(57.29578)
 #define SAMPLE_TIME		(0.005)
 #define ALPHA			(0.9934)
-
-//#define BOT_LEGO
-#define BOT_MINI
-
-#ifdef BOT_LEGO
-#define GYR_SCALE 390
-#define ANGLETARGET -15
-#endif
-#ifdef BOT_MINI
-#define GYR_SCALE 250
-//#define ANGLETARGET 6.2
-#define ANGLETARGET 5.88
-/*
-// somewhat working
-#define INIT_KP 0.1
-#define INIT_KI 0.2
-#define INIT_KD 0.0001
-*/
-/*
-// way better
-#define INIT_KP 0.15
-#define INIT_KI 0.9
-#define INIT_KD 0.002
-*/
-//quite stable
-/*
-#define INIT_KP 0.15
-#define INIT_KI 0.9
-#define INIT_KD 0.003
-*/
-//seems even better
-#define INIT_KP 0.15
-#define INIT_KI 0.9
-#define INIT_KD 0.00375
-#endif
 
 
 // inputs

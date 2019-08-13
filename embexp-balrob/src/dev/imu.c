@@ -9,6 +9,8 @@
 #include <dev/i2c.h>
 #include <dev/hw.h>
 
+#include <robot_params.h>
+
 #include <io.h>
 
 
@@ -119,19 +121,6 @@ uint8_t imu_init(uint8_t wint)
 	IMU_WRITE_AND_RETURN(0x6B, 0x00);
 
 	// configure offsets with precalibrated values
-//#define BOT_LEGO
-#define BOT_MINI
-
-#ifdef BOT_LEGO
-#define ACC_X_OFF				-1251
-#define ACC_Z_OFF				910
-#define GYRO_Y_OFF				-18
-#endif
-#ifdef BOT_MINI
-#define ACC_X_OFF				-2214
-#define ACC_Z_OFF				1096
-#define GYRO_Y_OFF				18
-#endif
 	//calculate_offset(ACC_X_OFF, ACC_Z_OFF, GYRO_Y_OFF);
 	uint8_t temp;
 	if ((temp = set_offset_(ACC_X_OFF, ACC_Z_OFF, GYRO_Y_OFF)))
