@@ -8,3 +8,6 @@ embexp-balrob/Release
 CMSIS_CORE_LPC11xx/Debug
 CMSIS_CORE_LPC11xx/Release
 
+RemoteControl/.vs
+RemoteControl/RemoteControl/bin
+RemoteControl/RemoteControl/obj
