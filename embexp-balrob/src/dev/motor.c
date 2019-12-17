@@ -8,10 +8,15 @@
 #include "LPC11xx.h"
 #include "dev/hw.h"
 
+#include <robot_params.h>
 
 ////////////////// configuration ////////////////////
+#ifdef BOT_LEGO
+#define USE_L298
+#endif
+#ifdef BOT_MINI
 #define USE_DRV8833
-//#define USE_L298
+#endif
 
 #define TMR_PCLK		(12 * 1000 * 1000)
 #define TMR_PRESCALE	(1)

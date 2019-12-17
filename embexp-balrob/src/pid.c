@@ -70,7 +70,12 @@ uint8_t pid_msg_read(pid_msg_t* m) {
 
 
 // inputs
+#ifdef BOT_LEGO
+volatile uint8_t motor_on = 1;
+#endif
+#ifdef BOT_MINI
 volatile uint8_t motor_on = 0;
+#endif
 volatile float angleTarget = ANGLETARGET;
 volatile float kp = INIT_KP;
 volatile float ki = INIT_KI;
@@ -167,10 +172,12 @@ void pid() {
 		int in_ch;
 
 		// handle button, hope that the loop is so slow that it is already debounced
+#ifdef BOT_MINI
 		uint8_t button = ui_get_button();
 		if (button != button_last && button == 0)
 			motor_on = !motor_on;
 		button_last = button;
+#endif
 
 		// handle io
 		while ((in_ch = in_handle()) == -3);

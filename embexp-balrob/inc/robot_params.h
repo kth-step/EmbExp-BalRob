@@ -8,8 +8,8 @@
 #ifndef ROBOT_PARAMS_H_
 #define ROBOT_PARAMS_H_
 
-//#define BOT_LEGO
-#define BOT_MINI
+#define BOT_LEGO
+//#define BOT_MINI
 
 
 // IMU calibration data (offsets)
@@ -44,6 +44,9 @@
 // pid parameters
 // ---------------------------------------------------
 #ifdef BOT_LEGO
+#define INIT_KP 0.2
+#define INIT_KI 0.2
+#define INIT_KD 0.0001
 #endif
 #ifdef BOT_MINI
 /*
