@@ -1,6 +1,8 @@
 
 *.launch
 
+*.o
+output
 
 embexp-balrob/Debug
 embexp-balrob/Release
