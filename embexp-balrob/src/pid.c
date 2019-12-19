@@ -95,6 +95,30 @@ float errorLast = 0;
 float errorSum = 0;
 uint32_t pid_counter = 0;
 
+#ifdef DONTKNOWMATH
+float abs(float f) {
+	if (f < 0)
+		return -1 * f;
+	else
+		return f;
+}
+
+float atan2f(float y, float x) {
+	float coeff_1 = M_PI / 4.0f;
+	float coeff_2 = 3.0f * coeff_1;
+	float abs_y = abs(y);
+	float angle;
+	if (x >= 0.0f) {
+		float r = (x - abs_y) / (x + abs_y);
+		angle = coeff_1 - coeff_1 * r;
+	} else {
+		float r = (x + abs_y) / (abs_y - x);
+		angle = coeff_2 - coeff_1 * r;
+	}
+	return y < 0.0f ? -angle : angle;
+}
+#endif
+
 void imu_handler(uint8_t noyield) {
 	// start by taking the time since the last run, restarting the timer and reading the imu
 	uint32_t pid_sampletime = timer_read();
@@ -107,7 +131,7 @@ void imu_handler(uint8_t noyield) {
     int16_t gyrY = imu_values[5];
 
 	// calc angle using complementary filter
-	float accAngle =  (accZ == 0) ? 0 : (atan2(accX,accZ) * RAD_TO_DEG);
+	float accAngle =  (accZ == 0) ? 0 : (atan2f(accX,accZ) * RAD_TO_DEG);
 	float gyrAngleDiff = (-((((int32_t)gyrY)  * GYR_SCALE) / 32768.0)) * SAMPLE_TIME;
 
 #ifdef DEBUG_ANGLESCALE

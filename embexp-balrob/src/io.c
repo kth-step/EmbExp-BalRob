@@ -115,9 +115,22 @@ void out_data_int(uint8_t ch, int32_t data) {
 #include <stdarg.h>
 #include <stdio.h>
 
+
+#ifdef PUREPRINT
+uint8_t strlen(char* s) {
+	uint8_t n;
+	for(n = 0; *s; s++)
+		n++;
+	return n;
+}
+#endif
+
 #define OUT_MAX_CHAR (255)
 char out_buffer[OUT_MAX_CHAR+1];
 void out_vprintf(uint8_t ch, char *fmt, va_list args) {
+#ifdef PUREPRINT
+	out_data(ch, (uint8_t*)fmt, (uint8_t)strlen(fmt));
+#else
 	int n = vsnprintf(out_buffer, OUT_MAX_CHAR+1, fmt, args);
 
 	if (n < 0)
@@ -132,6 +145,7 @@ void out_vprintf(uint8_t ch, char *fmt, va_list args) {
 	}
 
 	out_data(ch, (uint8_t*)out_buffer, (uint8_t)n);
+#endif
 }
 
 void out_info(char *fmt, ...) {
