@@ -10,8 +10,6 @@
 
 #include "LPC11xx.h"
 
-#include <cr_section_macros.h>
-
 #include <dev/hw.h>
 #include <dev/ui.h>
 #include <dev/motor.h>
