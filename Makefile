@@ -34,7 +34,8 @@ LDFLAGS_POST = -L$(ARMSYS) -L$(ARMLIB) -lgcc
 
 INCFLAGS     = $(foreach d,$(CODE_DIRS),-I$d/inc)
 SFLAGS       = ${SFLAGS_EXTRA} ${INCFLAGS}
-CFLAGS	     = -std=gnu99 -Wall -fno-builtin -fno-stack-protector ${INCFLAGS} ${CFLAGS_EXTRA} -DGCC_COMPAT_COMPILATION
+CFLAGS	     = -std=gnu99 -Wall -fno-builtin -fno-stack-protector ${INCFLAGS} ${CFLAGS_EXTRA}
+# -DGCC_COMPAT_COMPILATION
 LDFLAGS_PRE  = -Bstatic -nostartfiles -nostdlib
 
 
