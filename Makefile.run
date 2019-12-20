@@ -1,8 +1,21 @@
+ifndef EMBEXP_OPENOCD_DIR
+  $(error !!! openocd not defined)
+endif
+
+EMBEXP_GDBS_PORT=3333
+BOARDCONFIG=lpc11c24_flash
+
 connect:
-	echo "open openocd here"
+	cd $(EMBEXP_OPENOCD_DIR)/tcl && ../src/openocd -f interface/cmsis-dap.cfg -f target/lpc11xx.cfg -c "adapter_khz 1000"
 
 run debug: $(NAME)
 	./scripts/run_gdb.py ${GDB} "localhost:$(EMBEXP_GDBS_PORT)" $(NAME) $(BOARDCONFIG) $@
 
-.PHONY: connect run debug
+reset:
+	${GDB} --eval-command="target remote localhost:$(EMBEXP_GDBS_PORT)" -x scripts/gdb/reset_$(BOARDCONFIG).gdb -x scripts/gdb/run.gdb
+
+attach: $(NAME)
+	${GDB} --eval-command="target remote localhost:$(EMBEXP_GDBS_PORT)"
+
+.PHONY: connect run debug reset attach
 

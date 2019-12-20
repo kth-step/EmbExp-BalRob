@@ -5,6 +5,7 @@ Makefile.local
 
 *.o
 output
+temp
 
 embexp-balrob/Debug
 embexp-balrob/Release
