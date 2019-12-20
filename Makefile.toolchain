@@ -4,15 +4,15 @@
 ifndef EMBEXP_CROSS
   ifdef HOLBA_GCC_ARM_CROSS
     EMBEXP_CROSS = ${HOLBA_GCC_ARM_CROSS}
-
-    ARMDIR = $(dir $(EMBEXP_CROSS))..
-
-    ARMSYS = $(ARMDIR)/arm-none-eabi/lib/thumb/v6-m
-    ARMLIB = $(ARMDIR)/lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m
   else
     $(error !!! no cross compiler defined)
   endif
 endif
+
+ARMDIR = $(dir $(EMBEXP_CROSS))..
+
+ARMSYS = $(ARMDIR)/arm-none-eabi/lib/thumb/v6-m
+ARMLIB = $(ARMDIR)/lib/gcc/arm-none-eabi/7.3.1/thumb/v6-m
 
 ifndef EMBEXP_GDB
   EMBEXP_GDB = ${EMBEXP_CROSS}gdb
