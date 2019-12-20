@@ -15,7 +15,7 @@ reset:
 	${GDB} --eval-command="target remote localhost:$(EMBEXP_GDBS_PORT)" -x scripts/gdb/reset_$(BOARDCONFIG).gdb -x scripts/gdb/run.gdb
 
 attach: $(NAME)
-	${GDB} --eval-command="target remote localhost:$(EMBEXP_GDBS_PORT)"
+	${GDB} --eval-command="target remote localhost:$(EMBEXP_GDBS_PORT)" $(NAME)
 
 .PHONY: connect run debug reset attach
 
