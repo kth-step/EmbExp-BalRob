@@ -7,6 +7,8 @@
 
 #include <dev/uart.h>
 
+#include <robot_params.h>
+
 #include <stdint.h>
 
 void io_init() {
@@ -117,7 +119,7 @@ void out_data_int(uint8_t ch, int32_t data) {
 
 
 #ifdef PUREPRINT
-uint8_t strlen(char* s) {
+static uint8_t strlen_own(char* s) {
 	uint8_t n;
 	for(n = 0; *s; s++)
 		n++;
@@ -129,7 +131,7 @@ uint8_t strlen(char* s) {
 char out_buffer[OUT_MAX_CHAR+1];
 void out_vprintf(uint8_t ch, char *fmt, va_list args) {
 #ifdef PUREPRINT
-	out_data(ch, (uint8_t*)fmt, (uint8_t)strlen(fmt));
+	out_data(ch, (uint8_t*)fmt, (uint8_t)strlen_own(fmt));
 #else
 	int n = vsnprintf(out_buffer, OUT_MAX_CHAR+1, fmt, args);
 

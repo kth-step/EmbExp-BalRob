@@ -96,17 +96,19 @@ float errorSum = 0;
 uint32_t pid_counter = 0;
 
 #ifdef DONTKNOWMATH
-float abs(float f) {
+
+static float abs_own(float f) {
 	if (f < 0)
 		return -1 * f;
 	else
 		return f;
 }
 
-float atan2f(float y, float x) {
+#define ATAN2F_FUN atan2f_own
+static float atan2f_own(float y, float x) {
 	float coeff_1 = M_PI / 4.0f;
 	float coeff_2 = 3.0f * coeff_1;
-	float abs_y = abs(y);
+	float abs_y = abs_own(y);
 	float angle;
 	if (x >= 0.0f) {
 		float r = (x - abs_y) / (x + abs_y);
@@ -117,6 +119,8 @@ float atan2f(float y, float x) {
 	}
 	return y < 0.0f ? -angle : angle;
 }
+#else
+#define ATAN2F_FUN atan2f
 #endif
 
 void imu_handler(uint8_t noyield) {
@@ -131,7 +135,7 @@ void imu_handler(uint8_t noyield) {
     int16_t gyrY = imu_values[5];
 
 	// calc angle using complementary filter
-	float accAngle =  (accZ == 0) ? 0 : (atan2f(accX,accZ) * RAD_TO_DEG);
+	float accAngle =  (accZ == 0) ? 0 : (ATAN2F_FUN(accX,accZ) * RAD_TO_DEG);
 	float gyrAngleDiff = (-((((int32_t)gyrY)  * GYR_SCALE) / 32768.0)) * SAMPLE_TIME;
 
 #ifdef DEBUG_ANGLESCALE

@@ -11,6 +11,14 @@
 //#define BOT_LEGO
 #define BOT_MINI
 
+#define GCC_COMPAT_COMPILATION
+
+
+#ifdef GCC_COMPAT_COMPILATION
+#define DONTKNOWMATH
+#define PUREPRINT
+#endif
+
 
 // IMU calibration data (offsets)
 // ---------------------------------------------------
