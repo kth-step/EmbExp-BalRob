@@ -44,7 +44,8 @@
 #ifdef BOT_MINI
 #define GYR_SCALE 250
 //#define ANGLETARGET 6.2
-#define ANGLETARGET 5.88
+//#define ANGLETARGET 5.88
+#define ANGLETARGET 8.44
 #endif
 
 
