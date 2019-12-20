@@ -8,8 +8,8 @@
 #ifndef ROBOT_PARAMS_H_
 #define ROBOT_PARAMS_H_
 
-#define BOT_LEGO
-//#define BOT_MINI
+//#define BOT_LEGO
+#define BOT_MINI
 
 
 // IMU calibration data (offsets)
