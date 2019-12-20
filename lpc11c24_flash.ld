@@ -36,23 +36,26 @@ SECTIONS
                 FILL(0xff)
                 KEEP (*(.isr_vector));
                 KEEP (*(.after_vectors));
-                *(.text);
-        } >flash        
+                *(.text*);
+                *(.rodata*);
+                . = ALIGN(4);
+        } >flash
         _etext = .;
         
 	. = ORIGIN(ram);
         .data : 
         {
                 _data = .;
-                *(.data);
+                *(.data*);
                 _edata = .;
+                . = ALIGN(4);
         } >ram AT>flash
 
-        .bss : 
+        .bss (NOLOAD) : 
         {
                 __bss_start__ = .;
                 _bss = .;
-                *(.bss);
+                *(.bss*);
                 __bss_end__ = .;
                 _ebss = .;	  
         } > ram
