@@ -16,3 +16,8 @@ CMSIS_CORE_LPC11xx/Release
 RemoteControl/.vs
 RemoteControl/RemoteControl/bin
 RemoteControl/RemoteControl/obj
+
+egypt-1.10.tar.gz
+egypt-1.10
+*.expand
+

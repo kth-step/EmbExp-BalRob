@@ -34,7 +34,7 @@ LDFLAGS_POST = -L$(ARMSYS) -L$(ARMLIB) -lgcc
 
 INCFLAGS     = $(foreach d,$(CODE_DIRS),-I$d/inc)
 SFLAGS       = ${SFLAGS_EXTRA} ${INCFLAGS}
-CFLAGS	     = -std=gnu99 -Wall -fno-builtin -fno-stack-protector ${INCFLAGS} ${CFLAGS_EXTRA}
+CFLAGS	     = -std=gnu99 -Wall -fno-builtin -fno-stack-protector ${INCFLAGS} ${CFLAGS_EXTRA} -fdump-rtl-expand
 # -DGCC_COMPAT_COMPILATION
 LDFLAGS_PRE  = -Bstatic -nostartfiles -nostdlib
 
@@ -57,10 +57,30 @@ $(NAME): ${OBJECTS} ${INCLUDE_FILES}
 clean:
 	rm -rf ${OUTDIR}
 	rm -f $(call rwildcard, , *.o)
+	rm -f $(call rwildcard, , *.expand)
 
 
 .PHONY: all clean
 
+
+# callgraphs
+# http://www.gson.org/egypt/
+callgraph-install:
+	rm -f egypt-1.10.tar.gz
+	rm -rf egypt-1.10
+	wget http://www.gson.org/egypt/download/egypt-1.10.tar.gz
+	tar -xzf egypt-1.10.tar.gz
+	cd egypt-1.10 && perl Makefile.PL && make && chmod +x egypt
+
+# http://m0agx.eu/2016/12/15/making-call-graphs-with-gcc-egypt-and-cflow/
+callgraph:
+	make clean
+	make
+	rm -f output/callgraph.png
+	./egypt-1.10/egypt --include-external ./embexp-balrob/src/*.expand | dot -Gsize=3000,3000 -Grankdir=LR -Tpng -o output/callgraph.png
+	xdg-open output/callgraph.png
+
+.PHONY: callgraph callgraph-install
 
 # running and debugging
 include Makefile.run
