@@ -64,9 +64,9 @@ uint8_t pid_msg_read(pid_msg_t* m) {
 // pid controller in the imu_handler
 // -------------------------------------------------------------------------------------
 
-#define RAD_TO_DEG		(57.29578)
-#define SAMPLE_TIME		(0.005)
-#define ALPHA			(0.9934)
+#define RAD_TO_DEG		(57.29578f)
+#define SAMPLE_TIME		(0.005f)
+#define ALPHA			(0.9934f)
 
 
 // inputs
@@ -110,12 +110,12 @@ static float atan2f_own(float y, float x) {
 	float coeff_2 = 3.0f * coeff_1;
 	float abs_y = abs_own(y);
 	float angle;
-	if (x >= 0.0f) {
-		float r = (x - abs_y) / (x + abs_y);
-		angle = coeff_1 - coeff_1 * r;
-	} else {
+	if (x < 0.0f) {
 		float r = (x + abs_y) / (abs_y - x);
 		angle = coeff_2 - coeff_1 * r;
+	} else {
+		float r = (x - abs_y) / (x + abs_y);
+		angle = coeff_1 - coeff_1 * r;
 	}
 	return y < 0.0f ? -angle : angle;
 }
@@ -136,7 +136,7 @@ void imu_handler(uint8_t noyield) {
 
 	// calc angle using complementary filter
 	float accAngle =  (accZ == 0) ? 0 : (ATAN2F_FUN(accX,accZ) * RAD_TO_DEG);
-	float gyrAngleDiff = (-((((int32_t)gyrY)  * GYR_SCALE) / 32768.0)) * SAMPLE_TIME;
+	float gyrAngleDiff = (-((((int32_t)gyrY)  * GYR_SCALE) / 32768.0f)) * SAMPLE_TIME;
 
 #ifdef DEBUG_ANGLESCALE
 	accAngle_  = accAngle;
@@ -151,7 +151,7 @@ void imu_handler(uint8_t noyield) {
 	float errorDiff = error - errorLast;
 	errorLast = error;
 	float errorSumNew = errorSum + (error);
-	errorSum = errorSumNew > 300 ? 300 : (errorSumNew < -300 ? -300 : errorSumNew);
+	errorSum = (!(errorSumNew < 300)) ? 300 : (errorSumNew < -300 ? -300 : errorSumNew);
 
 	// compute output signal
 	float motorPowerNew = (kp * error) + (ki * errorSum * SAMPLE_TIME) + (kd * errorDiff / SAMPLE_TIME);
