@@ -52,7 +52,8 @@ all: $(NAME)
 $(NAME): ${OBJECTS} ${INCLUDE_FILES}
 	mkdir -p ${OUTDIR}
 	${CROSS}ld $(LDFLAGS_PRE) -o $@ -T $(LINKERFILE) ${OBJECTS} $(LDFLAGS_POST)
-	${CROSS}objdump -t -h -D $@ > "$@_da"
+	${CROSS}objdump -t -h $@ > "$@.table"
+	${CROSS}objdump -D    $@ > "$@.da"
 
 clean:
 	rm -rf ${OUTDIR}
@@ -73,13 +74,20 @@ callgraph-install:
 	cd egypt-1.10 && perl Makefile.PL && make && chmod +x egypt
 
 # http://m0agx.eu/2016/12/15/making-call-graphs-with-gcc-egypt-and-cflow/
-#EXPANSION = ./embexp-balrob/src/*.expand ./embexp-balrob/src/dev/*.expand
-EXPANSION = ./embexp-balrob/src/*.expand
+EXPANSION      = ./embexp-balrob/src/*.expand ./embexp-balrob/src/dev/*.expand
+EXPANSION_SIMP = ./embexp-balrob/src/*.expand
 callgraph:
 	make clean
-	make
+	make callgraph-full
+
+callgraph-full: $(NAME)
 	rm -f output/callgraph.png
 	./egypt-1.10/egypt --include-external ${EXPANSION} | dot -Gsize=3000,3000 -Grankdir=LR -Tpng -o output/callgraph.png
+	xdg-open output/callgraph.png
+
+callgraph-simp: $(NAME)
+	rm -f output/callgraph.png
+	./egypt-1.10/egypt --include-external ${EXPANSION_SIMP} | dot -Gsize=3000,3000 -Grankdir=LR -Tpng -o output/callgraph.png
 	xdg-open output/callgraph.png
 
 .PHONY: callgraph callgraph-install
