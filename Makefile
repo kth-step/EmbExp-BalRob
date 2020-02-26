@@ -53,7 +53,8 @@ $(NAME): ${OBJECTS} ${INCLUDE_FILES}
 	mkdir -p ${OUTDIR}
 	${CROSS}ld $(LDFLAGS_PRE) -o $@ -T $(LINKERFILE) ${OBJECTS} $(LDFLAGS_POST)
 	${CROSS}objdump -t -h $@ > "$@.table"
-	${CROSS}objdump -D    $@ > "$@.da"
+	${CROSS}objdump -d    $@ > "$@.da"
+	${CROSS}objdump -D    $@ > "$@.da.all"
 
 clean:
 	rm -rf ${OUTDIR}
