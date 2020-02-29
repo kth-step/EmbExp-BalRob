@@ -54,8 +54,9 @@ $(NAME): ${OBJECTS} ${INCLUDE_FILES}
 	${CROSS}ld $(LDFLAGS_PRE) -o $@ -T $(LINKERFILE) ${OBJECTS} $(LDFLAGS_POST)
 	${CROSS}objdump -t -h $@ > "$@.table"
 	${CROSS}objdump -d    $@ > "$@.da"
-	${CROSS}objdump -j.text -j.data -j.bss -d $@ > "$@.da.plus"
 	${CROSS}objdump -D    $@ > "$@.da.all"
+	${CROSS}objdump -j.text -j.data -j.bss -d $@ > "$@.da.plus"
+	${CROSS}objdump -j.text -j.data -j.bss -s $@ > "$@.mem"
 	${CROSS}objcopy -O ihex $@ "$@.ihex"
 
 clean:
