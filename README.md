@@ -4,6 +4,8 @@ This an embedded experiment that is meant to be a physical demonstrator for exec
 The build infrastructure is shared with [`EmbExp-ProgPlatform`](https://github.com/kth-step/EmbExp-ProgPlatform) in order to integrate with analysis in [`HolBA`](https://github.com/kth-step/HolBA).
 
 This repository contains the source code for a simple LPC11C24 based balancing robot as well as a companion tool `RemoteControl`.
+The mechanical setup is inspired by the following instructions:
+[Arduino Self-Balancing Robot](https://www.instructables.com/id/Arduino-Self-Balancing-Robot-1/).
 
 ![Balancing Robot](doc/img1.jpg)
 
