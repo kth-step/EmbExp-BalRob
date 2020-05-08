@@ -29,7 +29,7 @@ LINKERFILE    = lpc11c24_flash.ld
 # compiler flags
 # ---------------------------------
 SFLAGS_EXTRA = -mcpu=cortex-m0 -mthumb
-CFLAGS_EXTRA = -g3 -specs=nosys.specs -DUSE_OLD_STYLE_DATA_BSS_INIT -ffunction-sections -fdata-sections -mcpu=cortex-m0 -mthumb -fno-common -D__USE_CMSIS=CMSIS_CORE_LPC11xx
+CFLAGS_EXTRA = -O3 -g3 -specs=nosys.specs -DUSE_OLD_STYLE_DATA_BSS_INIT -ffunction-sections -fdata-sections -mcpu=cortex-m0 -mthumb -fno-common -D__USE_CMSIS=CMSIS_CORE_LPC11xx
 LDFLAGS_POST = -L$(ARMSYS) -L$(ARMLIB) -lgcc
 
 INCFLAGS     = $(foreach d,$(CODE_DIRS),-I$d/inc)
