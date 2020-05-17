@@ -31,7 +31,7 @@ SECTIONS
 
         .bss (NOLOAD) : ALIGN(4)
         {
-                *(.bss);
+                *(.bss*);
                 *(.sbss*);
                 . = ALIGN(8);	  
         } > ram
