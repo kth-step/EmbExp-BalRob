@@ -21,3 +21,5 @@ egypt-1.10.tar.gz
 egypt-1.10
 *.expand
 
+*.pyc
+
