@@ -47,7 +47,7 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 				except:
 					pass
 				if loc >= 0:
-					balrob.verify_binary(ser, c[1], loc)
+					balrob.send_binary(ser, c[1], loc, True)
 
 			else:
 				print(f"unknown command - {c[0]}")

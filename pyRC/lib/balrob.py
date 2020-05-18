@@ -93,16 +93,18 @@ def reset_uploads(ser):
 	m = struct.pack("<l", 0)
 	send_data(ser, 81, m)
 
-def verify_code(ser, mloc, dat):
+def send_code(ser, mloc, dat, verify_data = True):
+	c = 82 if verify_data else 83
 	m = struct.pack("<L", mloc)
-	send_data(ser, 82, m+dat)
+	send_data(ser, c, m+dat)
 
-def verify_binary(ser, filename, idx):
-	print(f"start verification - {filename} - {idx}")
+def send_binary(ser, filename, idx, verify_data = True):
+	s_procedure = "verification" if verify_data else "writing"
+	print(f"start {s_procedure} - {filename} - {idx}")
 	reset_uploads(ser)
 
-	#verify_code(ser, 0x0, b"\xb0\xb5")
-	#verify_code(ser, 0x2, b"\x98\xb0")
+	#send_code(ser, 0x0, b"\xb0\xb5")
+	#send_code(ser, 0x2, b"\x98\xb0")
 	#return
 
 	print("")
@@ -114,8 +116,8 @@ def verify_binary(ser, filename, idx):
 				continue
 			mloc = addr + idx * 0xa00
 			dat = f.read(chunksize)
-			verify_code(ser, mloc, dat)
+			send_code(ser, mloc, dat, verify_data)
 			print(f"\r{(addr+len(dat))/filelength*100:.{1}f}%", end = '')
 	print("")
-	print(f"done verification - {filename} - {idx}")
+	print(f"done {s_procedure} - {filename} - {idx}")
 

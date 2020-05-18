@@ -254,6 +254,8 @@ void KEEPINFLASH pid() {
 	int buf_idx;
 	uint32_t v_addr = 0x4444;
 	uint32_t v_ok = 1;
+	uint32_t w_addr = 0x4444;
+	uint32_t w_ok = 1;
 
 	while (1) {
 		int in_ch;
@@ -320,6 +322,8 @@ void KEEPINFLASH pid() {
 			//out_info_inthex("verification, last v_addr!", v_addr);
 			v_addr = 0x4444;
 			v_ok = 1;
+			w_addr = 0x4444;
+			w_ok = 1;
 			break;
 		case 82:
 #define SEC_LEN 0xa00
@@ -368,6 +372,55 @@ void KEEPINFLASH pid() {
 					v_ok = 0;
 					//out_info_inthex("verification error! have: ", data_rd);
 					//out_info_inthex("verification error! want: ", data);
+				}
+			}
+			break;
+		case 83:
+			//datp = (uint32_t*)&in_data;
+			//addr = *(datp+0);
+			addr = in_data;
+			//data = *(datp+1);
+			if (w_addr == 0x4444) {
+				if (!((addr % SEC_LEN == 0) && ((addr / SEC_LEN == 0) || (addr / SEC_LEN == 1)))) {
+					w_ok = 0;
+					out_info_inthex("writing start error!", addr);
+					break;
+				}
+				out_info("writing starts!");
+			} else if (!(w_addr + 1 == addr)) {
+				w_ok = 0;
+				out_info_inthex("writing skip error!", addr);
+				out_info_inthex(" --- ", w_addr);
+				break;
+			} else {
+				//out_info("writing continues!");
+			}
+
+			//out_info_inthex("writing buffer!", in_data_len);
+			for (buf_idx = 0; buf_idx < in_data_len-4; buf_idx++) {
+				addr_by = addr + buf_idx;
+				data = in_buffer[4+4+buf_idx];
+				//out_info_inthex("writing data!", data);
+				data_rd = *((uint8_t*)(((void*)(addr_by))+0x10000000));
+				//out_info_inthex("writing data_rd!", data_rd);
+				if (data_rd == data) {
+					//out_info("writing good!");
+					if (((w_addr + 2) % SEC_LEN) == 0) {
+						if (w_ok)
+							out_info("writing ok!");
+						else
+							out_info("writing failed!");
+
+						w_addr = 0x4444;
+						w_ok = 1;
+					} else {
+						w_addr = addr_by;
+					}
+				} else {
+					w_addr = addr_by;
+					w_ok = 0;
+					//out_info_inthex("writing error! have: ", data_rd);
+					//out_info_inthex("writing error! want: ", data);
 				}
 			}
 			break;
