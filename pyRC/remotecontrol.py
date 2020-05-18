@@ -21,6 +21,9 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 	print("="*10)
 	print("(v/w)(0/1)")
 	print("e(0/1/e)")
+	print("m(0/1)")
+	print("p(0/1)")
+	print(",/.")
 	print("="*10)
 	print("")
 	try:
@@ -42,6 +45,21 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 				s = "e,1"
 			elif s == "ee":
 				s = "e,e"
+
+			elif s == "m0":
+				s = "m,off"
+			elif s == "m1":
+				s = "m,on"
+
+			elif s == "p0":
+				s = "p,off"
+			elif s == "p1":
+				s = "p,on"
+
+			elif s == ",":
+				s = "a,+"
+			elif s == ".":
+				s = "a,-"
 
 			c = s.split(",")
 			if c[0] == "p":
