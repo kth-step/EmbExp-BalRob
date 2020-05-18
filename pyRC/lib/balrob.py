@@ -83,4 +83,8 @@ def set_exec(ser, v):
 	m = struct.pack("<l", v)
 	send_data(ser, 80, m)
 
+def add_angle(ser, a):
+	m = struct.pack("<f", a)
+	send_data(ser, 71, m)
+
 

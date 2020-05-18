@@ -271,6 +271,9 @@ void KEEPINFLASH pid() {
 			angleTarget = *((float*)&in_data);
 			out_info("angletarget! %iu", pid_msg.pid_counter);
 			break;
+		case 71:
+			angleTarget += *((float*)&in_data);
+			break;
 		case 80:
 			switch (in_data) {
 				case 1:
