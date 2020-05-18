@@ -15,6 +15,8 @@ void io_init();
 int in_handle();
 // data that has been produced last
 extern int32_t in_data;
+extern uint32_t in_data_len;
+extern uint8_t in_buffer[2+1+1+255+2];
 
 
 void out_data(uint8_t ch, uint8_t* data, uint8_t len);
