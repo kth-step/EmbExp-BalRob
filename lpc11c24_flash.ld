@@ -24,11 +24,11 @@ SECTIONS
 	. = ORIGIN(ram);
         .reloadtext : 
         {
-                . = 0x0; /* + 0xa00 */
+                . = 0x0 + 0xa00;
                 KEEP (*(.reloadtextentry));
                 */pid.o (.text*)
                 */motor.o (.text*)
-                . = 0xa00; /* + 0xa00 */
+                . = 0xa00 + 0xa00;
         } >ram AT>flash
 
         PROVIDE(_fromreloadtext = LOADADDR(.reloadtext));
@@ -37,7 +37,7 @@ SECTIONS
 
         .data : 
         {
-                . = 0xa00;
+                /* . = 0xa00; */
                 *(.data*);
                 *(.sdata*);
                 . = ALIGN(8);

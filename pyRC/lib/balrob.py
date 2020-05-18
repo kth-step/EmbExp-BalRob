@@ -114,6 +114,8 @@ def send_binary(ser, filename, idx, verify_data = True):
 	print("")
 	with open(filename, "rb") as f:
 		filelength = 0xa00
+		if idx != 0:
+			f.read(filelength)
 		chunksize = 200
 		for addr in range(0xa00):
 			if addr % chunksize != 0:
