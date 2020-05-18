@@ -75,6 +75,7 @@ def send_data(ser, ch, m):
 	#print(msg)
 
 	ser.write(msg)
+	time.sleep(0.3)
 
 def set_motor(ser, is_on):
 	m = struct.pack("<l", 1 if is_on else 0)
@@ -115,7 +116,6 @@ def verify_binary(ser, filename, idx):
 			dat = f.read(chunksize)
 			verify_code(ser, mloc, dat)
 			print(f"\r{(addr+len(dat))/filelength*100:.{1}f}%", end = '')
-			time.sleep(0.3)
 	print("")
 	print(f"done verification - {filename} - {idx}")
 

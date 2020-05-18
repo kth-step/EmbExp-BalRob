@@ -316,6 +316,7 @@ void KEEPINFLASH pid() {
 			out_info("exec!");
 			break;
 		case 81:
+			out_info_inthex("verification, last v_addr!", v_addr);
 			v_addr = 0x4444;
 			break;
 		case 82:
@@ -347,7 +348,7 @@ void KEEPINFLASH pid() {
 				//out_info_inthex("verification data_rd!", data_rd);
 				if (data_rd == data) {
 					//out_info("verification good!");
-					if (((v_addr + 1) % SEC_LEN) == 0) {
+					if (((v_addr + 2) % SEC_LEN) == 0) {
 						// TODO: this only depends on the last comparison, fix this
 						out_info("verification ok!");
 						v_addr = 0x4444;
