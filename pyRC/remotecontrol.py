@@ -11,6 +11,7 @@ import balrob
 
 with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 	print("="*10)
+	print("p,on/off")
 	print("m,on/off")
 	print("e,0/1/2")
 	print("a,+/-")
@@ -21,7 +22,9 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 		while True:
 			s = input("choose: ")
 			c = s.split(",")
-			if c[0] == "m":
+			if c[0] == "p":
+				balrob.set_pid_info(ser, c[1] == "on")
+			elif c[0] == "m":
 				balrob.set_motor(ser, c[1] == "on")
 
 			elif c[0] == "e":
