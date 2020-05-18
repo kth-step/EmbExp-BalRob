@@ -1,4 +1,5 @@
 import struct
+import time
 
 serialdevice = "/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0"
 
@@ -87,4 +88,19 @@ def add_angle(ser, a):
 	m = struct.pack("<f", a)
 	send_data(ser, 71, m)
 
+def reset_uploads(ser):
+	m = struct.pack("<l", 0)
+	send_data(ser, 81, m)
+
+def verify_code(ser, mloc, dat):
+	m = struct.pack("<HH", mloc, dat)
+	send_data(ser, 82, m)
+
+def verify_binary(ser, filename, idx):
+	print(f"start verification - {filename} - {idx}")
+	#mloc = idx * 0xa00
+	#dat = f.read(floc)
+	reset_uploads(ser)
+	verify_code(ser, 0x0, 0xb5b0)
+	verify_code(ser, 0x2, 0xb098)
 

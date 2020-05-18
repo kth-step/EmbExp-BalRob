@@ -126,7 +126,7 @@ static float atan2f_own(float y, float x) {
 void imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampletime);
 void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime);
 
-volatile void (*imu_handler_pid_entry_ptr)(uint8_t,uint32_t) = 0;
+void (* volatile imu_handler_pid_entry_ptr)(uint8_t,uint32_t) = 0;
 volatile uint8_t imu_handler_pid_entry_ptr_valid = 0;
 void KEEPINFLASH imu_handler(uint8_t noyield) {
 	static void (*imu_handler_pid_entry_ptr_internal)(uint8_t,uint32_t) = &imu_handler_pid_entry_empty;
@@ -220,7 +220,25 @@ void RELOADTEXTENTRY imu_handler_pid_entry(uint8_t noyield, uint32_t pid_samplet
 // communication loop
 // -------------------------------------------------------------------------------------
 
+void KEEPINFLASH out_info_inthex(char* s, uint32_t v) {
+	char buffer[10];
+	buffer[8] = 0;
 
+	for (int i = 0; i < 8; i++) {
+		char v_ = (char)(v % 16);
+		v  = v / 16;
+
+		if (v_ < 10)
+			buffer[7-i] = '0' + v_;
+		else
+			buffer[7-i] = 'A' + (v_ - 10);
+	}
+
+	out_info(s);
+	out_info(buffer);
+}
+
+uint32_t v_addr = 0x4444;
 uint8_t button_last = 0;
 void KEEPINFLASH pid() {
 	pid_msg_t pid_msg;
@@ -228,6 +246,11 @@ void KEEPINFLASH pid() {
 	// turn red led on
 	ui_set_led(0, 1);
 	ui_set_led(1, 1);
+
+	uint16_t* datp;
+	uint32_t addr;
+	uint16_t data;
+	uint16_t data_rd;
 
 	while (1) {
 		int in_ch;
@@ -289,6 +312,40 @@ void KEEPINFLASH pid() {
 			imu_handler_pid_entry_ptr_valid = 1;
 			while (imu_handler_pid_entry_ptr_valid);
 			out_info("exec!");
+			break;
+		case 81:
+			v_addr = 0x4444;
+			break;
+		case 82:
+#define SEC_LEN 0xa00
+			datp = (uint16_t*)&in_data;
+			addr = *(datp+0);
+			data = *(datp+1);
+			if (v_addr == 0x4444) {
+				if (!((addr % SEC_LEN == 0) && ((addr / SEC_LEN == 0) || (addr / SEC_LEN == 1)))) {
+					out_info_inthex("verification start error!", addr);
+					break;
+				}
+				out_info("verification starts!");
+			} else if (!(v_addr + 2 == addr)) {
+				out_info_inthex("verification skip error!", addr);
+				break;
+			} else {
+				out_info("verification continues!");
+			}
+
+			data_rd = *((uint16_t*)(((void*)addr)+0x10000000));
+			if (data_rd == data) {
+				if (((v_addr + 2) % SEC_LEN) == 0) {
+					out_info("verification ok!");
+					v_addr = 0x4444;
+				} else {
+					v_addr = addr;
+				}
+			} else {
+				out_info_inthex("verification error! have: ", data_rd);
+				out_info_inthex("verification error! want: ", data);
+			}
 			break;
 		default:
 			if (in_ch >= 0) {

@@ -14,6 +14,7 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 	print("m,on/off")
 	print("e,0/1/2")
 	print("a,+/-")
+	print("v[,{filename},0/1]")
 	print("="*10)
 	print("")
 	try:
@@ -34,6 +35,19 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 			elif c[0] == "a":
 				a = 1 if c[1] == "+" else -1
 				balrob.add_angle(ser, a)
+
+			elif c[0] == "v":
+				if s == c[0]:
+					c = [c[0], "output/balrob.elf.reloadtext", 0]
+				loc = -1
+				try:
+					x = int(c[2])
+					assert (0 <= x) and (x <= 1)
+					loc = x
+				except:
+					pass
+				if loc >= 0:
+					balrob.verify_binary(ser, c[1], loc)
 
 			else:
 				print(f"unknown command - {c[0]}")
