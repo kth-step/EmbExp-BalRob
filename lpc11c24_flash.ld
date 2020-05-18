@@ -12,6 +12,9 @@ SECTIONS
                 FILL(0xff)
                 KEEP (*(.isr_vector));
                 KEEP (*(.after_vectors));
+                . = 0x200;
+                *libgcc.a:*(*); /* .text* .text.* */
+                . = 0x1700;
                 *(.text*);
                 *(.rodata*);
                 . = ALIGN(4);
