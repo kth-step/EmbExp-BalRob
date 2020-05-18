@@ -42,7 +42,7 @@ typedef struct pid_msg
 volatile uint8_t msg_flag = 0;
 volatile pid_msg_t pid_msg_last;
 
-uint8_t pid_msg_write(pid_msg_t m) {
+uint8_t KEEPINFLASH pid_msg_write(pid_msg_t m) {
 	if (msg_flag)
 		return 1;
 
@@ -123,16 +123,37 @@ static float atan2f_own(float y, float x) {
 #define ATAN2F_FUN atan2f
 #endif
 
+void imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampletime);
 void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime);
 
-void imu_handler(uint8_t noyield) {
+void (*imu_handler_pid_entry_ptr)(uint8_t,uint32_t) = 0; 
+void KEEPINFLASH imu_handler(uint8_t noyield) {
 	// start by taking the time since the last run, restarting the timer and reading the imu
 	uint32_t pid_sampletime = timer_read();
 	timer_start();
 	imu_read_values();
 
+	while(1);
+
 	// continue
-	imu_handler_pid_entry(noyield, pid_sampletime);
+	imu_handler_pid_entry_ptr = &imu_handler_pid_entry_empty;
+	if (imu_handler_pid_entry_ptr != 0) {
+		(*imu_handler_pid_entry_ptr)(noyield, pid_sampletime);
+	}
+}
+
+void KEEPINFLASH imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampletime) {
+	pid_counter++;
+	pid_msg_write((pid_msg_t){ .pid_sampletime = pid_sampletime,
+							   .pid_handlertime = 0,
+							   .pid_counter = pid_counter,
+
+							   .angle = 0,
+							   .error = 0,
+							   .errorDiff = 0,
+							   .errorSum = 0,
+
+							   .last_noyield = noyield});
 }
 
 void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {

@@ -231,9 +231,14 @@ extern unsigned int __data_section_table_end;
 extern unsigned int __bss_section_table;
 extern unsigned int __bss_section_table_end;
 #else
+extern unsigned int _fromreloadtext;
+extern unsigned int _reloadtext;
+extern unsigned int _ereloadtext;
+
 extern unsigned int _etext;
 extern unsigned int _data;
 extern unsigned int _edata;
+
 extern unsigned int _bss;
 extern unsigned int _ebss;
 #endif
@@ -274,6 +279,13 @@ ResetISR(void) {
 	// Use Old Style Data and BSS section initialization.
 	// This will only initialize a single RAM bank.
 	unsigned int * LoadAddr, *ExeAddr, *EndAddr, SectionLen;
+
+    // Copy the reload text segment from flash to SRAM.
+	LoadAddr = &_fromreloadtext;
+	ExeAddr = &_reloadtext;
+	EndAddr = &_ereloadtext;
+	SectionLen = (void*)EndAddr - (void*)ExeAddr;
+	//data_init((unsigned int)LoadAddr, (unsigned int)ExeAddr, SectionLen);
 
     // Copy the data segment from flash to SRAM.
 	LoadAddr = &_etext;

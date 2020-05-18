@@ -30,6 +30,10 @@ SECTIONS
                 . = 0xa00; /* + 0xa00 */
         } >ram AT>flash
 
+        PROVIDE(_fromreloadtext = LOADADDR(.reloadtext));
+        PROVIDE(_reloadtext = ADDR(.reloadtext));
+        PROVIDE(_ereloadtext = ADDR(.reloadtext) + SIZEOF(.reloadtext));
+
         .data : 
         {
                 . = 0xa00;
