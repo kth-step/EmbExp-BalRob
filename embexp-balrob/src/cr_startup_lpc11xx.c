@@ -285,7 +285,7 @@ ResetISR(void) {
 	ExeAddr = &_reloadtext;
 	EndAddr = &_ereloadtext;
 	SectionLen = (void*)EndAddr - (void*)ExeAddr;
-	//data_init((unsigned int)LoadAddr, (unsigned int)ExeAddr, SectionLen);
+	data_init((unsigned int)LoadAddr, (unsigned int)ExeAddr, SectionLen);
 
     // Copy the data segment from flash to SRAM.
 	LoadAddr = &_etext;

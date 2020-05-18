@@ -134,7 +134,7 @@ void KEEPINFLASH imu_handler(uint8_t noyield) {
 	imu_read_values();
 
 	// continue
-	imu_handler_pid_entry_ptr = &imu_handler_pid_entry_empty;
+	imu_handler_pid_entry_ptr = &imu_handler_pid_entry;
 	if (imu_handler_pid_entry_ptr != 0) {
 		(*imu_handler_pid_entry_ptr)(noyield, pid_sampletime);
 	}
