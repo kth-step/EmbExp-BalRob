@@ -315,10 +315,10 @@ void KEEPINFLASH pid() {
 			break;
 		case 80:
 			switch (in_data) {
-				case 1:
+				case 0:
 					imu_handler_pid_entry_ptr = &imu_handler_pid_entry;
 					break;
-				case 2:
+				case 1:
 					imu_handler_pid_entry_ptr = (void*)(((uint32_t)(&imu_handler_pid_entry)) + 0xa00);
 					break;
 				default:

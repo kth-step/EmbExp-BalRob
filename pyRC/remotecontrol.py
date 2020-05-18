@@ -13,10 +13,14 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 	print("="*10)
 	print("p,on/off")
 	print("m,on/off")
-	print("e,0/1/2")
+	print("e,0/1/e")
 	print("a,+/-")
 	print("v/w[,{filename},0/1]")
+	print("="*10)
+	print("shorthands")
+	print("="*10)
 	print("(v/w)(0/1)")
+	print("e(0/1/e)")
 	print("="*10)
 	print("")
 	try:
@@ -32,6 +36,13 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 			elif s == "w1":
 				s = "w,output/balrob.elf.reloadtext,1"
 
+			elif s == "e0":
+				s = "e,0"
+			elif s == "e1":
+				s = "e,1"
+			elif s == "ee":
+				s = "e,e"
+
 			c = s.split(",")
 			if c[0] == "p":
 				balrob.set_pid_info(ser, c[1] == "on")
@@ -39,7 +50,7 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 				balrob.set_motor(ser, c[1] == "on")
 
 			elif c[0] == "e":
-				x = 0
+				x = 99
 				try:
 					x = int(c[1])
 				except ValueError:
