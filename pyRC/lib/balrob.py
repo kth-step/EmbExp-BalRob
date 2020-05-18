@@ -98,9 +98,16 @@ def verify_code(ser, mloc, dat):
 
 def verify_binary(ser, filename, idx):
 	print(f"start verification - {filename} - {idx}")
-	#mloc = idx * 0xa00
-	#dat = f.read(floc)
 	reset_uploads(ser)
-	verify_code(ser, 0x0, 0xb5b0)
-	verify_code(ser, 0x2, 0xb098)
+
+	with open(filename, "rb") as f:
+		for addr in range(0xa00):
+			if addr % 2 != 0:
+				continue
+			mloc = addr + idx * 0xa00
+			dat = struct.unpack('H', f.read(2))[0]
+			verify_code(ser, mloc, dat)
+			time.sleep(1)
+	#verify_code(ser, 0x0, 0xb5b0)
+	#verify_code(ser, 0x2, 0xb098)
 
