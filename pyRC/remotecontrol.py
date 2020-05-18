@@ -24,9 +24,9 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 			elif s == "r-0":
 				balrob.set_exec(ser, 0)
 			elif s == "r-1":
-				balrob.set_exec(ser, 2)
-			elif s == "r-2":
 				balrob.set_exec(ser, 1)
+			elif s == "r-2":
+				balrob.set_exec(ser, 2)
 			else:
 				print("unknown command")
 	except KeyboardInterrupt:
