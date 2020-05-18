@@ -189,7 +189,13 @@ void RELOADTEXTENTRY imu_handler_pid_entry(uint8_t noyield, uint32_t pid_samplet
 	errorSum = (!(errorSumNew < 300)) ? 300 : (errorSumNew < -300 ? -300 : errorSumNew);
 
 	// compute output signal
-	float motorPowerNew = (kp * error) + (ki * errorSum * SAMPLE_TIME) + (kd * errorDiff / SAMPLE_TIME);
+//#define BUG
+#ifdef BUG
+  #define KD_FACTOR 10
+#else
+  #define KD_FACTOR 1
+#endif
+	float motorPowerNew = (kp * error) + (ki * errorSum * SAMPLE_TIME) + (kd * KD_FACTOR * errorDiff / SAMPLE_TIME);
 	motorPower = motorPowerNew;
 
 	// output to motor
