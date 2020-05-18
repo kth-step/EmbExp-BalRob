@@ -18,3 +18,18 @@ Install the package graphviz with `apt` for example.
 Compile by running `make`. View the dependency graph by running `make callgraph-full`.
 
 
+## Write flash memory in the robot
+- One shell with `make connect`
+- Another one with `make clean run`
+
+
+## Connect to the robot
+- Configure serial port path in library file `pyRC/lib/balrob.py`
+- Run monitor `./pyRC/info.py`
+- Run remote commander `./pyRC/remotecontrol.py`
+
+
+## Most annoying things that should be fixed
+- I2C seems not to reset properly, sometimes stuck at boot, happens at each reset with optimization level 3 (O3), works with cold boot
+- Remote loading of optimized and unoptimized code is not compatible for some reason (for example mixing optimized code in flash with remote loaded unoptimized code)
+
