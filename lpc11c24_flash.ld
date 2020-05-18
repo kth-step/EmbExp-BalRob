@@ -15,7 +15,7 @@ SECTIONS
                 . = 0x200;
                 *libgcc.a:*(*); /* .text* .text.* */
                 . = 0x1700;
-                EXCLUDE_FILE (*/pid.o */motor.o) *(.text*);
+                EXCLUDE_FILE (*/pid.o */motor.o */motor_ct.o) *(.text*);
                 *(.keepinflash*);
                 *(.rodata*);
                 . = ALIGN(4);
@@ -28,6 +28,7 @@ SECTIONS
                 KEEP (*(.reloadtextentry));
                 */pid.o (.text*)
                 */motor.o (.text*)
+                */motor_ct.o (.text*)
                 . = 0xa00 + 0xa00;
         } >ram AT>flash
 
