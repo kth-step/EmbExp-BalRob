@@ -82,6 +82,6 @@
 #define INIT_KD 0.00375
 #endif
 
-
+#define KEEPINFLASH __attribute__((__section__(".keepinflash")))
 
 #endif /* ROBOT_PARAMS_H_ */

@@ -15,14 +15,24 @@ SECTIONS
                 . = 0x200;
                 *libgcc.a:*(*); /* .text* .text.* */
                 . = 0x1700;
-                *(.text*);
+                EXCLUDE_FILE (*/pid.o */motor.o) *(.text*);
+                *(.keepinflash*);
                 *(.rodata*);
                 . = ALIGN(4);
         } >flash
         
 	. = ORIGIN(ram);
+        .reloadtext : 
+        {
+                . = 0x0; /* + 0xa00 */
+                */pid.o (.text*)
+                */motor.o (.text*)
+                . = 0xa00; /* + 0xa00 */
+        } >ram AT>flash
+
         .data : 
         {
+                . = 0xa00;
                 *(.data*);
                 *(.sdata*);
                 . = ALIGN(8);

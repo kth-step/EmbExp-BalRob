@@ -170,13 +170,16 @@ __attribute__ ((weak)) void imu_handler(uint8_t noyield) {
 }
 
 uint8_t last_noyield = 0;
+void (*imu_handler_ptr)(uint8_t) = 0; 
 void PIOINT1_IRQHandler(void)
 {
 	// clear interrupt for pin
 	LPC_GPIO1->IC = (1 << 11); // has no effect if in level sensitive mode
 
 	// run imu_handler, if level sensitive imu needs to be read in the handler
-	imu_handler(last_noyield);
+	if (imu_handler_ptr != 0) {
+		imu_handler(last_noyield);
+	}
 
 	// check whether handler was too slow (is the interrupt already set again?)
 	last_noyield = (LPC_GPIO1->MIS & (1 << 11)) >> 11;

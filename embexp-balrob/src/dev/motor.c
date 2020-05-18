@@ -67,7 +67,7 @@ INR2 = PIO 3_2
 #endif
 //#define MOTOR_START_VAL (MOTOR_MAX_VAL * 18 / 60)
 
-void motor_timer_init() {
+void KEEPINFLASH motor_timer_init() {
 	// initialize timers and setup for PWM
 	// setup timer match
 	LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 7);
@@ -112,7 +112,7 @@ int motor_prep_input(int r) {
 
 
 ////////////////// driver code ////////////////////
-void motor_init()
+void KEEPINFLASH motor_init()
 {
 #ifdef USE_DRV8833
 	//PIO1_0 (nFAULT)

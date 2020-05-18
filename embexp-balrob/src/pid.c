@@ -50,7 +50,7 @@ uint8_t pid_msg_write(pid_msg_t m) {
 	msg_flag = 1;
 	return 0;
 }
-uint8_t pid_msg_read(pid_msg_t* m) {
+uint8_t KEEPINFLASH pid_msg_read(pid_msg_t* m) {
 	if (!msg_flag)
 		return 1;
 
@@ -197,7 +197,7 @@ void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
 
 
 uint8_t button_last = 0;
-void pid() {
+void KEEPINFLASH pid() {
 	pid_msg_t pid_msg;
 
 	// turn red led on
@@ -210,8 +210,10 @@ void pid() {
 		// handle button, hope that the loop is so slow that it is already debounced
 #ifdef BOT_MINI
 		uint8_t button = ui_get_button();
-		if (button != button_last && button == 0)
+		if (button != button_last && button == 0) {
 			motor_on = !motor_on;
+			out_info("button!");
+		}
 		button_last = button;
 #endif
 
@@ -254,7 +256,8 @@ void pid() {
 		}
 
 		// read the latest pid message
-		while (pid_msg_read(&pid_msg));
+		if (pid_msg_read(&pid_msg))
+			continue;
 
 		if (pid_msg.last_noyield)
 			out_debug("last imu handler was too slow.");
