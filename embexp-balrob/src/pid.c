@@ -238,7 +238,6 @@ void KEEPINFLASH out_info_inthex(char* s, uint32_t v) {
 	out_info(buffer);
 }
 
-uint32_t v_addr = 0x4444;
 uint8_t button_last = 0;
 void KEEPINFLASH pid() {
 	pid_msg_t pid_msg;
@@ -253,6 +252,8 @@ void KEEPINFLASH pid() {
 	uint8_t data;
 	uint8_t data_rd;
 	int buf_idx;
+	uint32_t v_addr = 0x4444;
+	uint32_t v_ok = 1;
 
 	while (1) {
 		int in_ch;
@@ -316,8 +317,9 @@ void KEEPINFLASH pid() {
 			out_info("exec!");
 			break;
 		case 81:
-			out_info_inthex("verification, last v_addr!", v_addr);
+			//out_info_inthex("verification, last v_addr!", v_addr);
 			v_addr = 0x4444;
+			v_ok = 1;
 			break;
 		case 82:
 #define SEC_LEN 0xa00
@@ -327,11 +329,13 @@ void KEEPINFLASH pid() {
 			//data = *(datp+1);
 			if (v_addr == 0x4444) {
 				if (!((addr % SEC_LEN == 0) && ((addr / SEC_LEN == 0) || (addr / SEC_LEN == 1)))) {
+					v_ok = 0;
 					out_info_inthex("verification start error!", addr);
 					break;
 				}
 				out_info("verification starts!");
 			} else if (!(v_addr + 1 == addr)) {
+				v_ok = 0;
 				out_info_inthex("verification skip error!", addr);
 				out_info_inthex(" --- ", v_addr);
 				break;
@@ -349,15 +353,21 @@ void KEEPINFLASH pid() {
 				if (data_rd == data) {
 					//out_info("verification good!");
 					if (((v_addr + 2) % SEC_LEN) == 0) {
-						// TODO: this only depends on the last comparison, fix this
-						out_info("verification ok!");
+						if (v_ok)
+							out_info("verification ok!");
+						else
+							out_info("verification failed!");
+
 						v_addr = 0x4444;
+						v_ok = 1;
 					} else {
 						v_addr = addr_by;
 					}
 				} else {
-					out_info_inthex("verification error! have: ", data_rd);
-					out_info_inthex("verification error! want: ", data);
+					v_addr = addr_by;
+					v_ok = 0;
+					//out_info_inthex("verification error! have: ", data_rd);
+					//out_info_inthex("verification error! want: ", data);
 				}
 			}
 			break;
