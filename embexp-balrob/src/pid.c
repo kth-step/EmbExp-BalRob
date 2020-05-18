@@ -187,7 +187,7 @@ void RELOADTEXTENTRY imu_handler_pid_entry(uint8_t noyield, uint32_t pid_samplet
 	errorSum = (!(errorSumNew < 300)) ? 300 : (errorSumNew < -300 ? -300 : errorSumNew);
 
 	// compute output signal
-//#define BUG
+#define BUG
 #ifdef BUG
   #define KD_FACTOR 10
 #else
