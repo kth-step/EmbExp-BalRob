@@ -126,7 +126,7 @@ static float atan2f_own(float y, float x) {
 void imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampletime);
 void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime);
 
-void (* volatile imu_handler_pid_entry_ptr)(uint8_t,uint32_t) = &imu_handler_pid_entry_empty;
+void (* volatile imu_handler_pid_entry_ptr)(uint8_t,uint32_t) = &imu_handler_pid_entry;
 volatile uint8_t imu_handler_pid_entry_ptr_valid = 1;
 void KEEPINFLASH imu_handler(uint8_t noyield) {
 	static void (*imu_handler_pid_entry_ptr_internal)(uint8_t,uint32_t) = 0;
@@ -147,6 +147,7 @@ void KEEPINFLASH imu_handler(uint8_t noyield) {
 }
 
 void KEEPINFLASH imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampletime) {
+	motor_set_f(0, 0);
 	pid_counter++;
 	pid_msg_write((pid_msg_t){ .pid_sampletime = pid_sampletime,
 							   .pid_handlertime = 0,
@@ -187,7 +188,7 @@ void RELOADTEXTENTRY imu_handler_pid_entry(uint8_t noyield, uint32_t pid_samplet
 	errorSum = (!(errorSumNew < 300)) ? 300 : (errorSumNew < -300 ? -300 : errorSumNew);
 
 	// compute output signal
-#define BUG
+//#define BUG
 #ifdef BUG
   #define KD_FACTOR 10
 #else
