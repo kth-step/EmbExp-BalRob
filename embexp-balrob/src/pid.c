@@ -126,17 +126,23 @@ static float atan2f_own(float y, float x) {
 void imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampletime);
 void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime);
 
-void (*imu_handler_pid_entry_ptr)(uint8_t,uint32_t) = 0; 
+volatile void (*imu_handler_pid_entry_ptr)(uint8_t,uint32_t) = 0;
+volatile uint8_t imu_handler_pid_entry_ptr_valid = 0;
 void KEEPINFLASH imu_handler(uint8_t noyield) {
+	static void (*imu_handler_pid_entry_ptr_internal)(uint8_t,uint32_t) = &imu_handler_pid_entry_empty;
 	// start by taking the time since the last run, restarting the timer and reading the imu
 	uint32_t pid_sampletime = timer_read();
 	timer_start();
 	imu_read_values();
 
+	if (imu_handler_pid_entry_ptr_valid) {
+		imu_handler_pid_entry_ptr_internal = imu_handler_pid_entry_ptr;
+		imu_handler_pid_entry_ptr_valid = 0;
+	}
+
 	// continue
-	imu_handler_pid_entry_ptr = &imu_handler_pid_entry;
 	if (imu_handler_pid_entry_ptr != 0) {
-		(*imu_handler_pid_entry_ptr)(noyield, pid_sampletime);
+		(*imu_handler_pid_entry_ptr_internal)(noyield, pid_sampletime);
 	}
 }
 
@@ -154,7 +160,7 @@ void KEEPINFLASH imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampl
 							   .last_noyield = noyield});
 }
 
-void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
+void RELOADTEXTENTRY imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
 
 	// pick out the relevant imu values
     int16_t accX = imu_values[0];
@@ -264,6 +270,22 @@ void KEEPINFLASH pid() {
 		case 70:
 			angleTarget = *((float*)&in_data);
 			out_info("angletarget! %iu", pid_msg.pid_counter);
+			break;
+		case 80:
+			switch (in_data) {
+				case 1:
+					imu_handler_pid_entry_ptr = &imu_handler_pid_entry;
+					break;
+				case 2:
+					imu_handler_pid_entry_ptr = (void*)(((uint32_t)(&imu_handler_pid_entry)) + 0xa00);
+					break;
+				default:
+					imu_handler_pid_entry_ptr = &imu_handler_pid_entry_empty;
+					break;
+			}
+			imu_handler_pid_entry_ptr_valid = 1;
+			while (imu_handler_pid_entry_ptr_valid);
+			out_info("exec!");
 			break;
 		default:
 			if (in_ch >= 0) {

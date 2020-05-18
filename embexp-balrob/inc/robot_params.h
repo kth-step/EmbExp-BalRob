@@ -83,5 +83,6 @@
 #endif
 
 #define KEEPINFLASH __attribute__((__section__(".keepinflash")))
+#define RELOADTEXTENTRY __attribute__((__section__(".reloadtextentry")))
 
 #endif /* ROBOT_PARAMS_H_ */

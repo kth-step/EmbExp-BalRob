@@ -79,4 +79,8 @@ def set_motor(ser, is_on):
 	m = struct.pack("<l", 1 if is_on else 0)
 	send_data(ser, 50, m)
 
+def set_exec(ser, v):
+	m = struct.pack("<l", v)
+	send_data(ser, 80, m)
+
 

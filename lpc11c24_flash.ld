@@ -25,6 +25,7 @@ SECTIONS
         .reloadtext : 
         {
                 . = 0x0; /* + 0xa00 */
+                KEEP (*(.reloadtextentry));
                 */pid.o (.text*)
                 */motor.o (.text*)
                 . = 0xa00; /* + 0xa00 */
