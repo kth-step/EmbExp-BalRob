@@ -401,6 +401,7 @@ void KEEPINFLASH pid() {
 				addr_by = addr + buf_idx;
 				data = in_buffer[4+4+buf_idx];
 				//out_info_inthex("writing data!", data);
+				*((uint8_t*)(((void*)(addr_by))+0x10000000)) = data;
 				data_rd = *((uint8_t*)(((void*)(addr_by))+0x10000000));
 				//out_info_inthex("writing data_rd!", data_rd);
 				if (data_rd == data) {
