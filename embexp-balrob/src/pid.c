@@ -126,10 +126,10 @@ static float atan2f_own(float y, float x) {
 void imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampletime);
 void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime);
 
-void (* volatile imu_handler_pid_entry_ptr)(uint8_t,uint32_t) = 0;
-volatile uint8_t imu_handler_pid_entry_ptr_valid = 0;
+void (* volatile imu_handler_pid_entry_ptr)(uint8_t,uint32_t) = &imu_handler_pid_entry_empty;
+volatile uint8_t imu_handler_pid_entry_ptr_valid = 1;
 void KEEPINFLASH imu_handler(uint8_t noyield) {
-	static void (*imu_handler_pid_entry_ptr_internal)(uint8_t,uint32_t) = &imu_handler_pid_entry_empty;
+	static void (*imu_handler_pid_entry_ptr_internal)(uint8_t,uint32_t) = 0;
 	// start by taking the time since the last run, restarting the timer and reading the imu
 	uint32_t pid_sampletime = timer_read();
 	timer_start();
