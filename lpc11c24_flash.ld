@@ -22,19 +22,25 @@ SECTIONS
         } >flash
         
 	. = ORIGIN(ram);
+	/* LOADATSLOT2 = 1; */
         .reloadtext : 
         {
-                . = 0x0 + 0xa00;
+                . = 0x0 + (DEFINED(LOADATSLOT2) ? 0xa00 : 0x0);
                 KEEP (*(.reloadtextentry));
                 */pid.o (.text*)
                 */motor.o (.text*)
                 */motor_ct.o (.text*)
-                . = 0xa00 + 0xa00;
+                . = 0xa00 + (DEFINED(LOADATSLOT2) ? 0xa00 : 0x0);
         } >ram AT>flash
 
         PROVIDE(_fromreloadtext = LOADADDR(.reloadtext));
         PROVIDE(_reloadtext = ADDR(.reloadtext));
         PROVIDE(_ereloadtext = ADDR(.reloadtext) + SIZEOF(.reloadtext));
+
+        .bufferspace : 
+        {
+                . = (DEFINED(LOADATSLOT2) ? 0x0 : 0xa00);
+        } >ram
 
         .data : 
         {
