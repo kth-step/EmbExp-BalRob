@@ -114,16 +114,20 @@ def send_binary(ser, filename, idx, verify_data = True):
 	print("")
 	with open(filename, "rb") as f:
 		filelength = 0xa00
-		if idx != 0:
+		for _ in range(idx):
 			f.read(filelength)
 		chunksize = 200
+		n_processed = 0
 		for addr in range(0xa00):
 			if addr % chunksize != 0:
 				continue
 			mloc = addr + idx * 0xa00
-			dat = f.read(chunksize)
+			n_remaining = filelength - n_processed
+			n_curchunk = min(chunksize, n_remaining)
+			dat = f.read(n_curchunk)
+			n_processed += len(dat)
 			send_code(ser, mloc, dat, verify_data)
-			print(f"\r{(addr+len(dat))/filelength*100:.{1}f}%", end = '')
+			print(f"\r{n_processed/filelength*100:.{1}f}%", end = '')
 	print("")
 	print(f"done {s_procedure} - {filename} - {idx}")
 

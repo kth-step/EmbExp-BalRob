@@ -16,11 +16,22 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 	print("e,0/1/2")
 	print("a,+/-")
 	print("v/w[,{filename},0/1]")
+	print("(v/w)(0/1)")
 	print("="*10)
 	print("")
 	try:
 		while True:
 			s = input("choose: ")
+
+			if s == "v0":
+				s = "v,output/balrob.elf.reloadtext,0"
+			elif s == "v1":
+				s = "v,output/balrob.elf.reloadtext,1"
+			elif s == "w0":
+				s = "w,output/balrob.elf.reloadtext,0"
+			elif s == "w1":
+				s = "w,output/balrob.elf.reloadtext,1"
+
 			c = s.split(",")
 			if c[0] == "p":
 				balrob.set_pid_info(ser, c[1] == "on")
