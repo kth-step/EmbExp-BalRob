@@ -11,33 +11,32 @@ import balrob
 
 with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 	print("="*10)
-	print("m-on/off")
-	print("r-0/1/2")
-	print("+/-")
+	print("m,on/off")
+	print("e,0/1/2")
+	print("a,+/-")
 	print("="*10)
 	print("")
 	try:
 		while True:
 			s = input("choose: ")
-			if s == "m-on":
-				balrob.set_motor(ser, True)
-			elif s == "m-off":
-				balrob.set_motor(ser, False)
+			c = s.split(",")
+			if c[0] == "m":
+				balrob.set_motor(ser, c[1] == "on")
 
-			elif s == "r-0":
-				balrob.set_exec(ser, 0)
-			elif s == "r-1":
-				balrob.set_exec(ser, 1)
-			elif s == "r-2":
-				balrob.set_exec(ser, 2)
+			elif c[0] == "e":
+				x = 0
+				try:
+					x = int(c[1])
+				except ValueError:
+					pass
+				balrob.set_exec(ser, x)
 
-			elif s == "+":
-				balrob.add_angle(ser, 1)
-			elif s == "-":
-				balrob.add_angle(ser, -1)
+			elif c[0] == "a":
+				a = 1 if c[1] == "+" else -1
+				balrob.add_angle(ser, a)
 
 			else:
-				print("unknown command")
+				print(f"unknown command - {c[0]}")
 	except KeyboardInterrupt:
 		pass
 
