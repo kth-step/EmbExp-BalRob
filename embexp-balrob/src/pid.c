@@ -247,10 +247,12 @@ void KEEPINFLASH pid() {
 	ui_set_led(0, 1);
 	ui_set_led(1, 1);
 
-	uint16_t* datp;
+	//uint16_t* datp;
 	uint32_t addr;
-	uint16_t data;
-	uint16_t data_rd;
+	uint32_t addr_by;
+	uint8_t data;
+	uint8_t data_rd;
+	int buf_idx;
 
 	while (1) {
 		int in_ch;
@@ -318,33 +320,44 @@ void KEEPINFLASH pid() {
 			break;
 		case 82:
 #define SEC_LEN 0xa00
-			datp = (uint16_t*)&in_data;
-			addr = *(datp+0);
-			data = *(datp+1);
+			//datp = (uint32_t*)&in_data;
+			//addr = *(datp+0);
+			addr = in_data;
+			//data = *(datp+1);
 			if (v_addr == 0x4444) {
 				if (!((addr % SEC_LEN == 0) && ((addr / SEC_LEN == 0) || (addr / SEC_LEN == 1)))) {
 					out_info_inthex("verification start error!", addr);
 					break;
 				}
 				out_info("verification starts!");
-			} else if (!(v_addr + 2 == addr)) {
+			} else if (!(v_addr + 1 == addr)) {
 				out_info_inthex("verification skip error!", addr);
+				out_info_inthex(" --- ", v_addr);
 				break;
 			} else {
-				out_info("verification continues!");
+				//out_info("verification continues!");
 			}
 
-			data_rd = *((uint16_t*)(((void*)addr)+0x10000000));
-			if (data_rd == data) {
-				if (((v_addr + 2) % SEC_LEN) == 0) {
-					out_info("verification ok!");
-					v_addr = 0x4444;
+			//out_info_inthex("verification buffer!", in_data_len);
+			for (buf_idx = 0; buf_idx < in_data_len-4; buf_idx++) {
+				addr_by = addr + buf_idx;
+				data = in_buffer[4+4+buf_idx];
+				//out_info_inthex("verification data!", data);
+				data_rd = *((uint8_t*)(((void*)(addr_by))+0x10000000));
+				//out_info_inthex("verification data_rd!", data_rd);
+				if (data_rd == data) {
+					//out_info("verification good!");
+					if (((v_addr + 1) % SEC_LEN) == 0) {
+						// TODO: this only depends on the last comparison, fix this
+						out_info("verification ok!");
+						v_addr = 0x4444;
+					} else {
+						v_addr = addr_by;
+					}
 				} else {
-					v_addr = addr;
+					out_info_inthex("verification error! have: ", data_rd);
+					out_info_inthex("verification error! want: ", data);
 				}
-			} else {
-				out_info_inthex("verification error! have: ", data_rd);
-				out_info_inthex("verification error! want: ", data);
 			}
 			break;
 		default:
