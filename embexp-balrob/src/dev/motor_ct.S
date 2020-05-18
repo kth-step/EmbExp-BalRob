@@ -7,11 +7,8 @@ motor_prep_input_ct:
 	eors	r0, r3
 	ldr	r3, =0x00001770
 	cmp	r0, r3
-	ble.n	_motor_prep_jmp
+	ble.n	motor_prep_input_ct+0xe
 	movs	r0, r3
-	nop
-
-_motor_prep_jmp:
 	ldr	r3, =0x00001770
 	subs	r0, r3, r0
 	bx	lr

@@ -93,6 +93,7 @@ void KEEPINFLASH motor_timer_init() {
 	LPC_TMR32B1->TCR = 1;
 }
 
+int motor_prep_input(int r);
 int motor_prep_input(int r) {
 	char sign = r < 0;
 	if (sign)
