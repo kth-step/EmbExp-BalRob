@@ -58,6 +58,8 @@ $(NAME): ${OBJECTS} ${INCLUDE_FILES}
 	${CROSS}objdump -D    $@ > "$@.da.all"
 	${CROSS}objdump -j.text -j.data -j.bss -d $@ > "$@.da.plus"
 	${CROSS}objdump -j.text -j.data -j.bss -s $@ > "$@.mem"
+	${CROSS}objdump -j.reloadtext -t -h $@ > "$@.reloadtext.table"
+	${CROSS}objcopy --gap-fill=0xff -j.reloadtext -O binary $@ "$@.reloadtext"
 	${CROSS}objcopy -O ihex $@ "$@.ihex"
 
 clean:
