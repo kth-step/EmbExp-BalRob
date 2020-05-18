@@ -38,7 +38,7 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 
 			elif c[0] == "v" or c[0] == "w":
 				if s == c[0]:
-					c = [c[0], "output/balrob.elf.reloadtext", 1]
+					c = [c[0], "output/balrob.elf.reloadtext", 0]
 				loc = -1
 				try:
 					x = int(c[2])

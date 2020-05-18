@@ -148,6 +148,7 @@ void KEEPINFLASH imu_handler(uint8_t noyield) {
 
 void KEEPINFLASH imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampletime) {
 	pid_counter++;
+	/*
 	pid_msg_write((pid_msg_t){ .pid_sampletime = pid_sampletime,
 							   .pid_handlertime = 0,
 							   .pid_counter = pid_counter,
@@ -158,6 +159,7 @@ void KEEPINFLASH imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampl
 							   .errorSum = 0,
 
 							   .last_noyield = noyield});
+	*/
 }
 
 void RELOADTEXTENTRY imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
@@ -441,7 +443,9 @@ void KEEPINFLASH pid() {
 		if (pid_msg.last_noyield)
 			out_debug("last imu handler was too slow.");
 
-		out_data(10, (uint8_t*)&pid_msg, sizeof(pid_msg));
+		if (motor_on) {
+			out_data(10, (uint8_t*)&pid_msg, sizeof(pid_msg));
+		}
 		//printf_new("time handler: %ius\r\n", TIMER_TO_US(pid_msg.pid_handlertime));
 		//printf_new("time sample: %ius\r\n", TIMER_TO_US(pid_msg.pid_sampletime));
 		//printf_new("counter: %i\r\n", pid_msg.pid_counter);
