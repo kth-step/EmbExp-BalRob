@@ -100,14 +100,18 @@ def verify_binary(ser, filename, idx):
 	print(f"start verification - {filename} - {idx}")
 	reset_uploads(ser)
 
+	print("")
 	with open(filename, "rb") as f:
+		filelength = 0xa00
 		for addr in range(0xa00):
 			if addr % 2 != 0:
 				continue
 			mloc = addr + idx * 0xa00
 			dat = struct.unpack('H', f.read(2))[0]
 			verify_code(ser, mloc, dat)
-			time.sleep(1)
+			print(f"\r{addr/filelength:.{1}f}%", end = '')
+			time.sleep(0.1)
 	#verify_code(ser, 0x0, 0xb5b0)
 	#verify_code(ser, 0x2, 0xb098)
+	print(f"done verification - {filename} - {idx}")
 
