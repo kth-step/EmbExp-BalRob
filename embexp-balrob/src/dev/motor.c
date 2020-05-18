@@ -94,7 +94,7 @@ void KEEPINFLASH motor_timer_init() {
 }
 
 int motor_prep_input(int r);
-int motor_prep_input(int r) {
+int motor_prep_input_(int r) {
 	char sign = r < 0;
 	if (sign)
 		r = -r;
