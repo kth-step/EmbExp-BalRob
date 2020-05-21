@@ -161,7 +161,7 @@ void KEEPINFLASH imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampl
 							   .last_noyield = noyield});
 }
 
-void RELOADTEXTENTRY imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
+void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
 
 	// pick out the relevant imu values
     int16_t accX = imu_values[0];
