@@ -300,23 +300,23 @@ void KEEPINFLASH pid() {
 			pid_info_on = in_data;
 			break;
 		case 60:
-			kp = *((float*)&in_data);
+			kp = *((float*)(in_buffer+4));
 			out_info("KP! %iu", pid_msg.pid_counter);
 			break;
 		case 61:
-			ki = *((float*)&in_data);
+			ki = *((float*)(in_buffer+4));
 			out_info("KI! %iu", pid_msg.pid_counter);
 			break;
 		case 62:
-			kd = *((float*)&in_data);
+			kd = *((float*)(in_buffer+4));
 			out_info("KD! %iu", pid_msg.pid_counter);
 			break;
 		case 70:
-			angleTarget = *((float*)&in_data);
+			angleTarget = *((float*)(in_buffer+4));
 			out_info("angletarget! %iu", pid_msg.pid_counter);
 			break;
 		case 71:
-			angleTarget += *((float*)&in_data);
+			angleTarget += *((float*)(in_buffer+4));
 			break;
 		case 80:
 			switch (in_data) {
