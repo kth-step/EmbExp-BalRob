@@ -87,6 +87,7 @@ uint8_t set_offset_(int16_t acc_x_off, int16_t acc_z_off, int16_t gyro_y_off)
 	return 0;
 }
 
+static volatile uint32_t icounter = 0;
 uint8_t imu_init(uint8_t wint)
 {
 	//Init AD0, pull down valuesistor
@@ -96,8 +97,10 @@ uint8_t imu_init(uint8_t wint)
 	//Init i2c bus
 	I2CInit(I2CMASTER);
 
+	//for (icounter = 0; icounter < 100000; icounter++);
 	// reset the imu
 	IMU_WRITE_AND_RETURN(0x6B, 0x80);
+	for (icounter = 0; icounter < 10000; icounter++);
 	IMU_WRITE_AND_RETURN(0x6B, 0x00);
 	IMU_WRITE_AND_RETURN(0x6A, 0x01);
 
@@ -112,9 +115,11 @@ uint8_t imu_init(uint8_t wint)
 	IMU_WRITE_AND_RETURN(0x1C, 0x00);
 
 	// interrupt pin high active, stay active until data read
+	//IMU_WRITE_AND_RETURN(0x37, 0x00);
 	IMU_WRITE_AND_RETURN(0x37, 0x30);
 
 	// interrupt when new data is ready
+	//IMU_WRITE_AND_RETURN(0x38, 0x00);
 	IMU_WRITE_AND_RETURN(0x38, 0x01);
 
 	// Power management (here clock source is Internal 8MHz oscillator)
