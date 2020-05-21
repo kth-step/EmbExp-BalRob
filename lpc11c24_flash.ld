@@ -26,7 +26,6 @@ SECTIONS
         .reloadtext : 
         {
                 . = 0x0 + (DEFINED(LOADATSLOT2) ? 0xa00 : 0x0);
-                KEEP (*(.reloadtextentry));
                 */pid.o (.text*)
                 */motor.o (.text*)
                 */motor_ct.o (.text*)
