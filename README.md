@@ -24,6 +24,19 @@ Compile by running `make`. View the dependency graph by running `make callgraph-
 
 
 ## Connect to the robot
+- Configure HC05 module with `sudo picocom --omap crcrlf -c -b 38400 /dev/serial/by-id/...`
+  - `https://arduino.stackexchange.com/questions/50974/how-to-solve-problem-atinq-error-1f-atinit-error17-on-bluetooth-module-hc`
+  - `https://www.instructables.com/id/How-to-Configure-HC-05-Bluetooth-Module-As-Master-/`
+  - `https://www.az-delivery.de/blogs/azdelivery-blog-fur-arduino-und-raspberry-pi/hc-05-buetooth-modul-at-inq-befehl`
+- Slave addresses:
+  - `98D3:32:310BA7`
+  - `21:13:4F0D`
+- Some commands:
+  - `AT+RNAME?21,13,4F0D`
+  - `AT+PAIR=21,13,4F0D,5`
+  - `AT+BIND=21,13,4F0D`
+  - `AT+LINK=21,13,4F0D`
+  - `AT+PSWD="1234"`
 - Configure serial port path in library file `pyRC/lib/balrob.py`
 - Run monitor `./pyRC/info.py`
 - Run remote commander `./pyRC/remotecontrol.py`
