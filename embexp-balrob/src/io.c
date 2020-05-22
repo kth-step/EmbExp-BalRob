@@ -181,4 +181,25 @@ void out_error(char *fmt, ...) {
 }
 
 
+// helpers
+// =========================
+void out_info_inthex(char* s, uint32_t v) {
+	char buffer[10];
+	buffer[8] = 0;
+
+	for (int i = 0; i < 8; i++) {
+		char v_ = (char)(v % 16);
+		v  = v / 16;
+
+		if (v_ < 10)
+			buffer[7-i] = '0' + v_;
+		else
+			buffer[7-i] = 'A' + (v_ - 10);
+	}
+
+	out_info(s);
+	out_info(buffer);
+}
+
+
 

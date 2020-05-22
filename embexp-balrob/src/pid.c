@@ -226,25 +226,6 @@ void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
 // -------------------------------------------------------------------------------------
 // communication loop
 // -------------------------------------------------------------------------------------
-
-void KEEPINFLASH out_info_inthex(char* s, uint32_t v) {
-	char buffer[10];
-	buffer[8] = 0;
-
-	for (int i = 0; i < 8; i++) {
-		char v_ = (char)(v % 16);
-		v  = v / 16;
-
-		if (v_ < 10)
-			buffer[7-i] = '0' + v_;
-		else
-			buffer[7-i] = 'A' + (v_ - 10);
-	}
-
-	out_info(s);
-	out_info(buffer);
-}
-
 void KEEPINFLASH pid() {
 	pid_msg_t pid_msg;
 	uint8_t button_last = 0;

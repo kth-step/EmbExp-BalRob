@@ -27,4 +27,8 @@ void out_debug(char *fmt, ...);
 void out_error(char *fmt, ...);
 
 
+// helpers
+void out_info_inthex(char* s, uint32_t v);
+
+
 #endif /* IO_H_ */
