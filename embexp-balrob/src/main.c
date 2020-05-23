@@ -13,6 +13,7 @@
 #include <dev/hw.h>
 #include <dev/ui.h>
 #include <dev/motor.h>
+#include <dev/encoder.h>
 #include <dev/timer.h>
 #include <dev/imu.h>
 
@@ -31,8 +32,9 @@ int main(void) {
 	out_info("io ready!");
 
 	motor_init();
+	encoder_init();
 	timer_init();
-	out_info("motors and timers ready!");
+	out_info("motors, encoders and timers ready!");
 
 	int imu_init_result = 55;
 	for (int i = 0; i < 3; i++) {
@@ -50,6 +52,12 @@ int main(void) {
 	out_info("--------------------------------");
 
 	pid();
+
+/*
+    while(1) {
+        out_info_inthex("x", (uint32_t)(encoder_values[1]));
+    }
+*/
 
     while(1) {
 		char b = ui_get_button();
