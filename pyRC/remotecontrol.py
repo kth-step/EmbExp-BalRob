@@ -16,6 +16,7 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 	print("e,0/1/e")
 	print("a,+/-")
 	print("v/w[,{filename},0/1]")
+	print("s")
 	print("="*10)
 	print("shorthands")
 	print("="*10)
@@ -91,6 +92,13 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 					pass
 				if loc >= 0:
 					balrob.send_binary(ser, c[1], loc, c[0] == "v")
+
+			elif c[0] == "s":
+				print("setting preprogrammed values")
+				balrob.set_pid_kp(ser, 1.2)
+				balrob.set_pid_ki(ser, 0.01)
+				balrob.set_pid_kd(ser, 0.5)
+				balrob.set_angle(ser, -14)
 
 			else:
 				print(f"unknown command - {c[0]}")

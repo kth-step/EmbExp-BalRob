@@ -131,3 +131,21 @@ def send_binary(ser, filename, idx, verify_data = True):
 	print("")
 	print(f"done {s_procedure} - {filename} - {idx}")
 
+
+
+def set_pid_kp(ser, v):
+	m = struct.pack("<f", v)
+	send_data(ser, 60, m)
+
+def set_pid_ki(ser, v):
+	m = struct.pack("<f", v)
+	send_data(ser, 61, m)
+
+def set_pid_kd(ser, v):
+	m = struct.pack("<f", v)
+	send_data(ser, 62, m)
+
+def set_angle(ser, v):
+	m = struct.pack("<f", v)
+	send_data(ser, 70, m)
+
