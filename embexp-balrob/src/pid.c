@@ -7,6 +7,7 @@
 
 #include <dev/ui.h>
 #include <dev/motor.h>
+#include <dev/encoder.h>
 #include <dev/timer.h>
 #include <dev/imu.h>
 
@@ -163,6 +164,13 @@ void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
     int16_t accZ = imu_values[2];
     int16_t gyrY = imu_values[5];
 
+	float angle_offset = 0.0f;
+#ifdef ENCODERS_ENABLED
+	float loc_error = -encoder_values[0] - 0.0f;
+	angle_offset = loc_error / 20;
+#endif
+	angle_offset = angle_offset > 1.0f ? 1.0f : (angle_offset < -1.0f ? -1.0f : angle_offset);
+
 	// calc angle using complementary filter
 	float accAngle =  (accZ == 0) ? 0 : (ATAN2F_FUN(accX,accZ) * RAD_TO_DEG);
 	float gyrAngleDiff = (-((((int32_t)gyrY)  * GYR_SCALE) / 32768.0f)) * SAMPLE_TIME;
@@ -176,7 +184,7 @@ void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
 	angleLast = angle;
 
 	// compute error and its derivative and integral
-	float error = angle - angleTarget;
+	float error = angle - (angleTarget + angle_offset);
 	float errorDiff = error - errorLast;
 	errorLast = error;
 	float errorSumNew = errorSum + (error);

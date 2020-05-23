@@ -39,7 +39,7 @@
 // ---------------------------------------------------
 #ifdef BOT_LEGO
 #define GYR_SCALE 390
-#define ANGLETARGET -15
+#define ANGLETARGET -14.2
 #endif
 #ifdef BOT_MINI
 #define GYR_SCALE 250
@@ -53,9 +53,16 @@
 // pid parameters
 // ---------------------------------------------------
 #ifdef BOT_LEGO
+/*
+// somewhat working
 #define INIT_KP 0.2
 #define INIT_KI 0.2
 #define INIT_KD 0.0001
+*/
+// way better
+#define INIT_KP 0.398
+#define INIT_KI 0.002
+#define INIT_KD 0.0084
 #endif
 #ifdef BOT_MINI
 /*
@@ -81,6 +88,15 @@
 #define INIT_KI 0.9
 #define INIT_KD 0.00375
 #endif
+
+
+
+// features
+// ---------------------------------------------------
+#ifdef BOT_LEGO
+#define ENCODERS_ENABLED
+#endif
+
 
 #define KEEPINFLASH __attribute__((__section__(".keepinflash")))
 

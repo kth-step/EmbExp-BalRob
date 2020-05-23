@@ -16,17 +16,13 @@ encoder1
 
 */
 
-#ifdef BOT_LEGO
-#define ENABLE_ENCODER
-#endif
-
 volatile int32_t encoder_values[2] = {0};
 
 void encoder_init() {
 	encoder_values[0] = 0;
 	encoder_values[1] = 0;
 
-#ifdef ENABLE_ENCODER
+#ifdef ENCODERS_ENABLED
   // encoder 0
 	//PIO2_8
 	LPC_IOCON->PIO2_8  = 0x420;
