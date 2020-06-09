@@ -237,7 +237,7 @@ void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
 void KEEPINFLASH pid() {
 	pid_msg_t pid_msg;
 	uint8_t button_last = 0;
-	uint8_t pid_info_on = 1;
+	uint8_t pid_info_on = 0;
 
 	// turn red led on
 	ui_set_led(0, 1);
