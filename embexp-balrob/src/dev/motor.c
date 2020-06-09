@@ -18,7 +18,7 @@
 #define USE_DRV8833
 #endif
 #ifdef BOT_BALPEN
-#define USE_DRV8833
+#define USE_L298
 #endif
 
 #define TMR_PCLK		(12 * 1000 * 1000)
