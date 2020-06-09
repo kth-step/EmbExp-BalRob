@@ -7,8 +7,8 @@
 
 /*
 encoder0
-  PIO2_8
-  PIO2_10
+  PIO2_0
+  PIO2_1
 
 encoder1
   PIO3_0
@@ -24,12 +24,12 @@ void encoder_init() {
 
 #ifdef ENCODERS_ENABLED
   // encoder 0
-	//PIO2_8
-	LPC_IOCON->PIO2_8  = 0x420;
-	hw_gpio_set_dir(2,8,0);
-	//PIO2_10
-	LPC_IOCON->PIO2_10  = 0x420;
-	hw_gpio_set_dir(2,10,0);
+	//PIO2_0
+	LPC_IOCON->PIO2_0  = 0x420;
+	hw_gpio_set_dir(2,0,0);
+	//PIO2_1
+	LPC_IOCON->PIO2_1  = 0x420;
+	hw_gpio_set_dir(2,1,0);
 
   // encoder 1
 	//PIO3_0
@@ -43,9 +43,9 @@ void encoder_init() {
   // encoder 0
 	// interrupt as edge sensitive, rising and falling edge interrupt
 	LPC_GPIO2->IS = 0;
-	LPC_GPIO2->IBE = (1 << 8) | (1 << 10);
+	LPC_GPIO2->IBE = (1 << 0) | (1 << 1);
 	// Enable GPIO pin interrupt
-	LPC_GPIO2->IE = (1 << 8) | (1 << 10);
+	LPC_GPIO2->IE = (1 << 0) | (1 << 1);
 
 
 	NVIC_ClearPendingIRQ(EINT2_IRQn);
@@ -63,7 +63,7 @@ void encoder_init() {
 
 	NVIC_ClearPendingIRQ(EINT0_IRQn);
 	NVIC_SetPriority(EINT0_IRQn,2);
-	NVIC_EnableIRQ(EINT0_IRQn);
+	//NVIC_EnableIRQ(EINT0_IRQn);
   // encoder 1_PIO3_0
 	// interrupt as edge sensitive, rising and falling edge interrupt
 	LPC_GPIO3->IS = 0;
@@ -74,14 +74,14 @@ void encoder_init() {
 
 	NVIC_ClearPendingIRQ(EINT3_IRQn);
 	NVIC_SetPriority(EINT3_IRQn,2);
-	NVIC_EnableIRQ(EINT3_IRQn);
+	//NVIC_EnableIRQ(EINT3_IRQn);
 #endif
 }
 
 static uint8_t lastval_enc0 = 0x00;
 void encoder0_compute() {
-	uint8_t curval0 = hw_gpio_get(2,8);
-	uint8_t curval1 = hw_gpio_get(2,10);
+	uint8_t curval0 = hw_gpio_get(2,0);
+	uint8_t curval1 = hw_gpio_get(2,1);
 
 	//uint8_t lastval0 = (lastval_enc0 >> 0) & 1;
 	uint8_t lastval1 = (lastval_enc0 >> 1) & 1;
@@ -118,8 +118,8 @@ void encoder0_compute() {
 void PIOINT2_IRQHandler(void)
 {
 	// clear interrupt for pin
-	LPC_GPIO2->IC = (1 << 8);
-	LPC_GPIO2->IC = (1 << 10);
+	LPC_GPIO2->IC = (1 << 0);
+	LPC_GPIO2->IC = (1 << 1);
 
 	encoder0_compute();
 

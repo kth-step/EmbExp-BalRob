@@ -36,6 +36,7 @@ int main(void) {
 	timer_init();
 	out_info("motors, encoders and timers ready!");
 
+#ifndef BOT_BALPEN
 	int imu_init_result = 55;
 	for (int i = 0; i < 3; i++) {
 		imu_init_result = imu_init(1); // enable interrupt handling
@@ -48,6 +49,8 @@ int main(void) {
 		out_error("imu stuck!");
 		while (1);
 	}
+#endif
+
 	out_info("startup done!");
 	out_info("--------------------------------");
 

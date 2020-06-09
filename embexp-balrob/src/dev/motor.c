@@ -17,6 +17,9 @@
 #ifdef BOT_MINI
 #define USE_DRV8833
 #endif
+#ifdef BOT_BALPEN
+#define USE_DRV8833
+#endif
 
 #define TMR_PCLK		(12 * 1000 * 1000)
 #define TMR_PRESCALE	(1)
@@ -49,7 +52,7 @@ Motor (L298) 2kHz max
 ------------
 PWML = PIO0_8/CT16B0_MAT0
 INL1 = PIO0_9
-INL2 = PIO3_1
+INL2 = PIO0_2
 
 PWMR = PIO1_1/CT32B1_MAT0
 INR1 = PIO1_2
@@ -139,11 +142,11 @@ void KEEPINFLASH motor_init()
 	LPC_IOCON->PIO0_9  |= 0x00;  // PIO0_9=0, CT16B0_MAT1=2
 	hw_gpio_set_dir(0,9,1);
 	hw_gpio_set(0,9,0);
-	//PIO3_1
-	LPC_IOCON->PIO3_1  &= ~0x07;
-	LPC_IOCON->PIO3_1  |= 0x00;
-	hw_gpio_set_dir(3,1,1);
-	hw_gpio_set(3,1,0);
+	//PIO0_2
+	LPC_IOCON->PIO0_2  &= ~0x07;
+	LPC_IOCON->PIO0_2  |= 0x00;
+	hw_gpio_set_dir(0,2,1);
+	hw_gpio_set(0,2,0);
 #endif
 
 	// right motor
@@ -219,10 +222,10 @@ void motor_set_r(int r) {
 void motor_set_l(int l) {
 	if (l < 0) {
 		hw_gpio_set(0,9,1);
-		hw_gpio_set(3,1,0);
+		hw_gpio_set(0,2,0);
 	} else {
 		hw_gpio_set(0,9,0);
-		hw_gpio_set(3,1,1);
+		hw_gpio_set(0,2,1);
 	}
 
 	l = motor_prep_input(l);
