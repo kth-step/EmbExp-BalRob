@@ -54,13 +54,12 @@ int main(void) {
 	out_info("startup done!");
 	out_info("--------------------------------");
 
-	pid();
+	//pid();
 
-/*
     while(1) {
-        out_info_inthex("x", (uint32_t)(encoder_values[1]));
+        out_info_inthex("x", (uint32_t)(encoder_values[0]));
+	motor_set_f(-0.7f, 0);
     }
-*/
 
     while(1) {
 		char b = ui_get_button();
