@@ -55,7 +55,7 @@
 #endif
 #ifdef BOT_BALPEN
 #define GYR_SCALE 390
-#define ANGLETARGET -14.2
+#define ANGLETARGET 10.0
 #endif
 
 
