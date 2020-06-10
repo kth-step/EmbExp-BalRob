@@ -220,5 +220,63 @@ void out_info_inthex(char* s, uint32_t v) {
 	out_info(buf);
 }
 
+uint8_t intsign16_to_buf(char* buf, int16_t v) {
+	uint8_t n = 0;
+	if (v < 0) {
+		v = -v;
+		buf[0] = '-';
+		buf++;
+		n++;
+	}
+
+	buf[4] = 0;
+	n += 4;
+
+	for (int i = 0; i < 4; i++) {
+		char v_ = (char)(v % 16);
+		v  = v / 16;
+
+		if (v_ < 10)
+			buf[4-1-i] = '0' + v_;
+		else
+			buf[4-1-i] = 'A' + (v_ - 10);
+	}
+
+	return n;
+}
+
+void out_info_inthex6_16(int16_t v1, int16_t v2, int16_t v3, int16_t v4, int16_t v5, int16_t v6) {
+	uint8_t n = 0;
+	char buf[100];
+
+	n += intsign16_to_buf(buf+n, v1);
+	buf[n] = '\t';
+	n++;
+
+	n += intsign16_to_buf(buf+n, v2);
+	buf[n] = '\t';
+	n++;
+
+	n += intsign16_to_buf(buf+n, v3);
+	buf[n] = '\t';
+	n++;
+
+	n += intsign16_to_buf(buf+n, v4);
+	buf[n] = '\t';
+	n++;
+
+	n += intsign16_to_buf(buf+n, v5);
+	buf[n] = '\t';
+	n++;
+
+	n += intsign16_to_buf(buf+n, v6);
+	buf[n] = '\t';
+	n++;
+
+	buf[n] = 0;
+	n++;
+	out_info(buf);
+}
+
 
 

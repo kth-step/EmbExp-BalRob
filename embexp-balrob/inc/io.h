@@ -29,6 +29,7 @@ void out_error(char *fmt, ...);
 
 // helpers
 void out_info_inthex(char* s, uint32_t v);
+void out_info_inthex6_16(int16_t v1, int16_t v2, int16_t v3, int16_t v4, int16_t v5, int16_t v6);
 
 
 #endif /* IO_H_ */

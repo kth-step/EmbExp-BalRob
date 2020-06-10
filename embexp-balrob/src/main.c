@@ -165,10 +165,23 @@ int main(void) {
 
 #define BUFF_SAMPLE_SIZE 		100
 
+
 	out_info("--------------------------------");
-	out_info("calibration starts!");
+	out_info("initializing offsets!");
+	out_info("--------------------------------");
+	ax_offset = 0xFFFFFA89;
+	ay_offset = 0x0000077C;
+	az_offset = 0x00000316;
+	gx_offset = 0xFFFFFF68;
+	gy_offset = 0x0000004E;
+	gz_offset = 0x00000002;
+	set_offset_(ax_offset, ay_offset, az_offset, gx_offset, gy_offset, gz_offset);
 
+	out_info("--------------------------------");
+	out_info("imu value range experiment starts!");
 
+//#define CHECKMEANS
+#ifdef CHECKMEANS
 	out_info("--------------------------------");
 	out_info("initial meaning!");
 	out_info("--------------------------------");
@@ -181,33 +194,27 @@ int main(void) {
 	out_info_inthex("value of gx: ", mean_gx);
 	out_info_inthex("value of gy: ", mean_gy);
 	out_info_inthex("value of gz: ", mean_gz);
-
-	out_info("--------------------------------");
-	out_info("calibration!");
-	out_info("--------------------------------");
-
-	calibration();
-
-	out_info_inthex("offset of ax: ", ax_offset);
-	out_info_inthex("offset of ay: ", ay_offset);
-	out_info_inthex("offset of az: ", az_offset);
-	out_info_inthex("offset of gx: ", gx_offset);
-	out_info_inthex("offset of gy: ", gy_offset);
-	out_info_inthex("offset of gz: ", gz_offset);
+#endif // ifdef CHECKMEANS
 
 
-	out_info("--------------------------------");
-	out_info("final meaning!");
-	out_info("--------------------------------");
+#ifndef CHECKMEANS
+	while(1) {
+		imu_wait_new_data();
+		imu_read_values();
 
-	meansensors();
+		ax = imu_values[0];
+		ay = imu_values[1];
+		az = imu_values[2];
+		gx = imu_values[4];
+		gy = imu_values[5];
+		gz = imu_values[6];
 
-	out_info_inthex("value of ax: ", mean_ax);
-	out_info_inthex("value of ay: ", mean_ay);
-	out_info_inthex("value of az: ", mean_az);
-	out_info_inthex("value of gx: ", mean_gx);
-	out_info_inthex("value of gy: ", mean_gy);
-	out_info_inthex("value of gz: ", mean_gz);
+		out_info_inthex6_16(ax, ay, az, gx, gy, gz);
+
+		timer_start();
+		TIMER_WAIT_US(1000 * 1000 / 2);
+	}
+#endif // ifdef CHECKMEANS
 
 
 
