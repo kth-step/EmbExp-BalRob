@@ -58,31 +58,53 @@ uint8_t imu_write(uint8_t addr, uint8_t val) {
 
 #define IMU_WRITE_AND_RETURN(a,v) {uint8_t temp;if ((temp = imu_write(a, v))) return temp;}
 
-
-uint8_t set_offset_(int16_t acc_x_off, int16_t acc_z_off, int16_t gyro_y_off)
+uint8_t set_offset_(int16_t acc_x_off, int16_t acc_y_off, int16_t acc_z_off, int16_t gyro_x_off, int16_t gyro_y_off, int16_t gyro_z_off)
 {
 	int8_t acc_x_offsetH = acc_x_off >> 8;
 	int8_t acc_x_offsetL = acc_x_off & 0x00FF;
+	int8_t acc_y_offsetH = acc_y_off >> 8;
+	int8_t acc_y_offsetL = acc_y_off & 0x00FF;
 	int8_t acc_z_offsetH = acc_z_off >> 8;
 	int8_t acc_z_offsetL = acc_z_off & 0x00FF;
+
+	int8_t gyro_x_offsetH = gyro_x_off >> 8;
+	int8_t gyro_x_offsetL = gyro_x_off & 0x00FF;
 	int8_t gyro_y_offsetH = gyro_y_off >> 8;
 	int8_t gyro_y_offsetL = gyro_y_off & 0x00FF;
+	int8_t gyro_z_offsetH = gyro_z_off >> 8;
+	int8_t gyro_z_offsetL = gyro_z_off & 0x00FF;
 
 #define ACC_X_OFF_H 			0x06
-#define ACC_X_OFF_L				0x07
-#define ACC_Z_OFF_H				0x0A
-#define ACC_Z_OFF_L				0x0B
+#define ACC_X_OFF_L			0x07
+#define ACC_Y_OFF_H 			0x08
+#define ACC_Y_OFF_L			0x09
+#define ACC_Z_OFF_H			0x0A
+#define ACC_Z_OFF_L			0x0B
+
+#define GYRO_X_OFF_H			0x13
+#define GYRO_X_OFF_L			0x14
 #define GYRO_Y_OFF_H			0x15
 #define GYRO_Y_OFF_L			0x16
+#define GYRO_Z_OFF_H			0x17
+#define GYRO_Z_OFF_L			0x18
 
 	IMU_WRITE_AND_RETURN(ACC_X_OFF_H, acc_x_offsetH);
 	IMU_WRITE_AND_RETURN(ACC_X_OFF_L, acc_x_offsetL);
 
+	IMU_WRITE_AND_RETURN(ACC_Y_OFF_H, acc_y_offsetH);
+	IMU_WRITE_AND_RETURN(ACC_Y_OFF_L, acc_y_offsetL);
+
 	IMU_WRITE_AND_RETURN(ACC_Z_OFF_H, acc_z_offsetH);
 	IMU_WRITE_AND_RETURN(ACC_Z_OFF_L, acc_z_offsetL);
 
+	IMU_WRITE_AND_RETURN(GYRO_X_OFF_H, gyro_x_offsetH);
+	IMU_WRITE_AND_RETURN(GYRO_X_OFF_L, gyro_x_offsetL);
+
 	IMU_WRITE_AND_RETURN(GYRO_Y_OFF_H, gyro_y_offsetH);
 	IMU_WRITE_AND_RETURN(GYRO_Y_OFF_L, gyro_y_offsetL);
+
+	IMU_WRITE_AND_RETURN(GYRO_Z_OFF_H, gyro_z_offsetH);
+	IMU_WRITE_AND_RETURN(GYRO_Z_OFF_L, gyro_z_offsetL);
 
 	return 0;
 }
@@ -127,9 +149,11 @@ uint8_t imu_init(uint8_t wint)
 
 	// configure offsets with precalibrated values
 	//calculate_offset(ACC_X_OFF, ACC_Z_OFF, GYRO_Y_OFF);
+/*
 	uint8_t temp;
-	if ((temp = set_offset_(ACC_X_OFF, ACC_Z_OFF, GYRO_Y_OFF)))
+	if ((temp = set_offset_(0, 0, 0)))
 		return temp;
+*/
 
 	// setup for interrupts
 	// ---------------------------------
@@ -171,7 +195,7 @@ void imu_wait_new_data() {
 }
 
 __attribute__ ((weak)) void imu_handler(uint8_t noyield) {
-	imu_read_values();
+	//imu_read_values();
 }
 
 uint8_t last_noyield = 0;
@@ -181,7 +205,7 @@ void PIOINT1_IRQHandler(void)
 	LPC_GPIO1->IC = (1 << 11); // has no effect if in level sensitive mode
 
 	// run imu_handler, if level sensitive imu needs to be read in the handler
-	imu_handler(last_noyield);
+	//imu_handler(last_noyield);
 
 	// check whether handler was too slow (is the interrupt already set again?)
 	last_noyield = (LPC_GPIO1->MIS & (1 << 11)) >> 11;

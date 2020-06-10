@@ -14,7 +14,7 @@ SECTIONS
                 KEEP (*(.after_vectors));
                 . = 0x200;
                 *libgcc.a:*(*); /* .text* .text.* */
-                . = 0x1700;
+                . = 0x2700;
                 EXCLUDE_FILE (*/pid.o */motor.o */motor_ct.o) *(.text*);
                 *(.keepinflash*);
                 *(.rodata*);
@@ -35,11 +35,6 @@ SECTIONS
         PROVIDE(_fromreloadtext = LOADADDR(.reloadtext));
         PROVIDE(_reloadtext = ADDR(.reloadtext));
         PROVIDE(_ereloadtext = ADDR(.reloadtext) + SIZEOF(.reloadtext));
-
-        .bufferspace : 
-        {
-                . = (DEFINED(LOADATSLOT2) ? 0x0 : 0xa00);
-        } >ram
 
         .data : 
         {

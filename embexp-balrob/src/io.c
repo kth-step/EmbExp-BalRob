@@ -10,6 +10,7 @@
 #include <robot_params.h>
 
 #include <stdint.h>
+#include <string.h>
 
 void io_init() {
 	uart_init();
@@ -183,7 +184,15 @@ void out_error(char *fmt, ...) {
 
 // helpers
 // =========================
+static char* strcpy_own(char * destination, const char * source) {
+	while(*source) {
+		*(destination++) = *(source++);
+	}
+	return destination;
+}
+
 void out_info_inthex(char* s, uint32_t v) {
+	char buf[100];
 	char buffer[10];
 	buffer[8] = 0;
 
@@ -197,8 +206,18 @@ void out_info_inthex(char* s, uint32_t v) {
 			buffer[7-i] = 'A' + (v_ - 10);
 	}
 
-	out_info(s);
-	out_info(buffer);
+	uint8_t len = strlen_own(s)+strlen_own(buffer);
+	if (len > (100-1)) {
+		out_info(s);
+		out_info(buffer);
+		out_error("not enough space");
+		return;
+	}
+
+	strcpy_own(buf, s);
+	strcpy_own(buf+strlen_own(s), buffer);
+	buf[len] = 0;
+	out_info(buf);
 }
 
 
