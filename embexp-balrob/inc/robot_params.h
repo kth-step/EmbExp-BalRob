@@ -34,9 +34,9 @@
 #define GYRO_Y_OFF				18
 #endif
 #ifdef BOT_BALPEN
-#define ACC_X_OFF				-1251
-#define ACC_Z_OFF				910
-#define GYRO_Y_OFF				-18
+#define ACC_X_OFF				-1399
+#define ACC_Z_OFF				790
+#define GYRO_Y_OFF				78
 #endif
 
 
