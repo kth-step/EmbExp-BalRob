@@ -99,9 +99,9 @@
 #define INIT_KD 0.00375
 #endif
 #ifdef BOT_BALPEN
-#define INIT_KP 0.096
-#define INIT_KI 0.096
-#define INIT_KD 0.0124
+#define INIT_KP 0.086
+#define INIT_KI 0.124
+#define INIT_KD 0.0044
 #endif
 
 #define ERROR_SUM_LIMIT 300
