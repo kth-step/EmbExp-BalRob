@@ -23,9 +23,10 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 	angle_scale = Scale(master, from_=-1.0, to=1.0, resolution=0.002, orient=HORIZONTAL, length=1000)
 	angle_scale.set(0.0)
 
-	kp_scale.set(0.092)
-	ki_scale.set(0.044)
-	kd_scale.set(0.0021)
+	kp_scale.set(0.081)
+	ki_scale.set(0.067) #0.105
+	kd_scale.set(0.0025)
+	angle_scale.set(-0.110)
 
 	def rob_motor_on():
 		balrob.set_motor(ser, True)
