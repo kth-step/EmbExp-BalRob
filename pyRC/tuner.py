@@ -13,7 +13,7 @@ from tkinter import *
 
 with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 	master = Tk()
-	factor = 2
+	factor = 5
 	kp_scale = Scale(master, from_=-0.1 * factor, to=0.1 * factor, resolution=0.0002 * factor, orient=HORIZONTAL, length=1000)
 	kp_scale.set(0.0)
 	ki_scale = Scale(master, from_=-0.1 * factor, to=0.1 * factor, resolution=0.0002 * factor, orient=HORIZONTAL, length=1000)
@@ -23,9 +23,9 @@ with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
 	angle_scale = Scale(master, from_=-1.0, to=1.0, resolution=0.002, orient=HORIZONTAL, length=1000)
 	angle_scale.set(0.0)
 
-	kp_scale.set(0.0816)
-	ki_scale.set(0.1332)
-	kd_scale.set(0.00252)
+	kp_scale.set(0.092)
+	ki_scale.set(0.044)
+	kd_scale.set(0.0021)
 
 	def rob_motor_on():
 		balrob.set_motor(ser, True)
