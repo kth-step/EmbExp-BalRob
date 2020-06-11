@@ -23,7 +23,7 @@
 
 #define TMR_PCLK		(12 * 1000 * 1000)
 #define TMR_PRESCALE	(1)
-#define TMR_FREQ		(2000)
+#define TMR_FREQ		(30000)
 
 ////////////////// pinouts for motor circuits ////////////////////
 /*
@@ -68,7 +68,7 @@ INR2 = PIO 3_2
 #if MOTOR_MAX_VAL >= (32768-1)
 #error "something might not fit in the timer registers, check this"
 #endif
-//#define MOTOR_START_VAL (MOTOR_MAX_VAL * 18 / 60)
+//#define MOTOR_START_VAL (MOTOR_MAX_VAL * 5 / 60)
 
 void KEEPINFLASH motor_timer_init() {
 	// initialize timers and setup for PWM
@@ -261,6 +261,16 @@ void motor_set(int l, int r) {
 }
 
 void motor_set_f(float l, float r) {
+/*
+	if (l < 0.1f) {
+		l = 0.1f;
+	} else if (l < 0.2f) {
+		l = 0.1f + (l - 0.1f) * 2;
+	} else if (l < 0.4f) {
+		l = 0.3f + (l - 0.3f) * 1.5f;
+	}
+*/
+
 	motor_set(l*MOTOR_MAX_VAL, r*MOTOR_MAX_VAL);
 }
 
