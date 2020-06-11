@@ -29,6 +29,7 @@ void out_error(char *fmt, ...);
 
 // helpers
 void out_info_inthex(char* s, uint32_t v);
+void out_info_2float(char* s, float v1, float v2);
 
 
 #endif /* IO_H_ */

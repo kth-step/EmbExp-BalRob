@@ -14,7 +14,7 @@ SECTIONS
                 KEEP (*(.after_vectors));
                 . = 0x200;
                 *libgcc.a:*(*); /* .text* .text.* */
-                . = 0x1700;
+                . = 0x3000;
                 EXCLUDE_FILE (*/pid.o */motor.o */motor_ct.o) *(.text*);
                 *(.keepinflash*);
                 *(.rodata*);

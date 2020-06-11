@@ -78,7 +78,7 @@ volatile float ki = INIT_KI;
 volatile float kd = INIT_KD;
 
 // output
-//#define DEBUG_ANGLESCALE
+#define DEBUG_ANGLESCALE
 #ifdef DEBUG_ANGLESCALE
 volatile float accAngle_ = 0;
 volatile float gyrAngle_ = 0;
@@ -448,7 +448,7 @@ void KEEPINFLASH pid() {
 
 		//debug
 #ifdef DEBUG_ANGLESCALE
-		out_info("acc: %f\t gyr: %f\r\n", accAngle_, gyrAngle_);
+		out_info_2float("acc/gyr: ", accAngle_, gyrAngle_);
 #endif
         //printf_new("\faccX: %d\taccZ: %d\tgyrY: %d       ", imu_values[0], imu_values[2], imu_values[5]);
         //TIMER_WAIT_US(100000);

@@ -183,7 +183,15 @@ void out_error(char *fmt, ...) {
 
 // helpers
 // =========================
+static char* strcpy_own(char * destination, const char * source) {
+	while(*source) {
+		*(destination++) = *(source++);
+	}
+	return destination;
+}
+
 void out_info_inthex(char* s, uint32_t v) {
+	char buf[100];
 	char buffer[10];
 	buffer[8] = 0;
 
@@ -197,8 +205,99 @@ void out_info_inthex(char* s, uint32_t v) {
 			buffer[7-i] = 'A' + (v_ - 10);
 	}
 
-	out_info(s);
-	out_info(buffer);
+	uint8_t len = strlen_own(s)+strlen_own(buffer);
+	if (len > (100-1)) {
+		out_info(s);
+		out_info(buffer);
+		out_error("not enough space");
+		return;
+	}
+
+	strcpy_own(buf, s);
+	strcpy_own(buf+strlen_own(s), buffer);
+	buf[len] = 0;
+	out_info(buf);
+}
+
+void out_info_2float(char* s, float v1, float v2) {
+	uint8_t n = 0;
+	char buf[100];
+	float v;
+
+	strcpy_own(buf+n, s);
+	n += strlen_own(s);
+
+	buf[n] = '\t';
+	n++;
+
+	v = v1;
+	if (v < 0) {
+		v = -v;
+		buf[n] = '-';
+		n++;
+	} else {
+		buf[n] = ' ';
+		n++;
+	}
+	if (v > 999) {
+		strcpy_own(buf+n, "(...)");
+		n += 5;
+	} else {
+		uint32_t k = (uint32_t)v;
+		buf[n] = '0' + ((k / 100) % 10);
+		n++;
+		buf[n] = '0' + ((k / 10) % 10);
+		n++;
+		buf[n] = '0' + ((k / 1) % 10);
+		n++;
+		buf[n] = '.';
+		n++;
+
+		k = (uint32_t)((v - k) * 100);
+		buf[n] = '0' + ((k / 10) % 10);
+		n++;
+		buf[n] = '0' + ((k / 1) % 10);
+		n++;
+	}
+
+	buf[n] = '\t';
+	n++;
+
+	v = v2;
+	if (v < 0) {
+		v = -v;
+		buf[n] = '-';
+		n++;
+	} else {
+		buf[n] = ' ';
+		n++;
+	}
+	if (v > 999) {
+		strcpy_own(buf+n, "(...)");
+		n += 5;
+	} else {
+		uint32_t k = (uint32_t)v;
+		buf[n] = '0' + ((k / 100) % 10);
+		n++;
+		buf[n] = '0' + ((k / 10) % 10);
+		n++;
+		buf[n] = '0' + ((k / 1) % 10);
+		n++;
+		buf[n] = '.';
+		n++;
+
+		k = (uint32_t)((v - k) * 100);
+		buf[n] = '0' + ((k / 10) % 10);
+		n++;
+		buf[n] = '0' + ((k / 1) % 10);
+		n++;
+	}
+
+
+	buf[n] = 0;
+	n++;
+
+	out_info(buf);
 }
 
 
