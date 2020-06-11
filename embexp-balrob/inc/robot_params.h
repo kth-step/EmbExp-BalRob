@@ -104,6 +104,7 @@
 #define INIT_KD 0.0124
 #endif
 
+#define ERROR_SUM_LIMIT 300
 
 
 // features
