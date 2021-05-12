@@ -44,13 +44,13 @@ LDFLAGS_PRE  = -Bstatic -nostartfiles -nostdlib
 # ---------------------------------
 all: $(NAME)
 
-%.o: %.S ${INCLUDE_FILES}
+%.o: %.S ${INCLUDE_FILES} Makefile
 	${CROSS}cpp ${INCFLAGS} $< | ${CROSS}as ${SFLAGS} -o $@ -
 
-%.o: %.c ${INCLUDE_FILES}
+%.o: %.c ${INCLUDE_FILES} Makefile
 	${CROSS}gcc ${CFLAGS} -c -o $@ $<
 
-$(NAME): ${OBJECTS} ${INCLUDE_FILES}
+$(NAME): ${OBJECTS} ${INCLUDE_FILES} $(LINKERFILE) Makefile
 	mkdir -p ${OUTDIR}
 	${CROSS}ld $(LDFLAGS_PRE) -o $@ -T $(LINKERFILE) ${OBJECTS} $(LDFLAGS_POST)
 	${CROSS}objdump -t -h $@ > "$@.table"

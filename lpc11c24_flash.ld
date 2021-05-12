@@ -57,7 +57,7 @@ SECTIONS
         {
                 *(.bss*);
                 *(.sbss*);
-                . = ALIGN(8);	  
+                . = ALIGN(8);
         } > ram
 
         PROVIDE(_bss = ADDR(.bss));
