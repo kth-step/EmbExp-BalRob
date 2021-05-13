@@ -4,6 +4,7 @@
 
 .globl _benchmark_timer_reset
 .globl _benchmark_timer_measure
+.globl _benchmark_helper_wait_1ms
 
 .globl _imu_handler_pid_entry_dummy
 
@@ -52,6 +53,21 @@ _benchmark_timer_measure:
 	dmb
 	dsb
 	isb
+	bx lr
+
+_benchmark_helper_wait_1ms:
+	ldr r1, =1000
+_benchmark_helper_wait_1ms_loop:
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	sub r1, r1, #1
+	cmp r1, #0
+	bne _benchmark_helper_wait_1ms_loop
 	bx lr
 
 _imu_handler_pid_entry_dummy:

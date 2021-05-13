@@ -3,7 +3,18 @@
 
 #include <stdint.h>
 
+#include "LPC11xx.h"
+
 #include <io.h>
+
+void disable_all_interrupts() {
+  for (uint8_t i = WAKEUP0_IRQn; i <= EINT0_IRQn; i++) {
+    //out_info_inthex("\r\nIRQn", i);
+    NVIC_DisableIRQ(i);
+  }
+  __DSB();
+  __ISB();
+}
 
 // input setter
 void imu_handler_pid_set_state_PID(float __kp, float __ki, float __kd, float __angleLast, float __errorLast, float __errorSum);
@@ -17,6 +28,7 @@ void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime);
 // from asm code
 void _benchmark_timer_reset();
 uint32_t _benchmark_timer_measure();
+void _benchmark_helper_wait_1ms();
 void _imu_handler_pid_entry_dummy(uint8_t noyield, uint32_t pid_sampletime);
 
 // composite measurement primitive
@@ -39,6 +51,9 @@ uint32_t benchmark_measure(void (*fun_ptr)(uint8_t, uint32_t), uint8_t __noyield
 void benchmark_run() {
   out_info("\r\na benchmark");
 
+  //out_info("disabling all interrupts (although they should be off at this point)");
+  disable_all_interrupts();
+
   //out_info("baseline");
   uint32_t cycles_bl = benchmark_measure(_imu_handler_pid_entry_dummy, 0, 0);
   out_info_inthex("cyclesbl", cycles_bl);
@@ -53,7 +68,9 @@ void benchmark_run() {
   out_info_inthex("cyclesres", cycles - cycles_bl);
 
   //while(1);
-  for (uint32_t i = 0; i < 1000 * 100; i++);
+  for (uint32_t i = 0; i < 1000 * 2; i++) {
+    _benchmark_helper_wait_1ms();
+  }
 }
 
 #endif
