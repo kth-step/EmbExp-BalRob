@@ -5,13 +5,11 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 
-import serial
-
 import balrob
 
 from tkinter import *
 
-with serial.Serial(balrob.serialdevice, 9600, timeout=None) as ser:
+with balrob.get_balrob_comm_serial() as ser:
 	master = Tk()
 	kp_scale = Scale(master, from_=-1.0, to=1.0, resolution=0.002, orient=HORIZONTAL, length=1000)
 	kp_scale.set(0.0)

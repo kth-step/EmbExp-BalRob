@@ -1,7 +1,12 @@
 import struct
 import time
 
-serialdevice = "/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0"
+import serial
+
+
+def get_balrob_comm_serial():
+	serialdevice = "/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0"
+	return serial.Serial(serialdevice, 9600, timeout=None)
 
 def decode_package(ser, handler):
 	n_failpacks = 0
