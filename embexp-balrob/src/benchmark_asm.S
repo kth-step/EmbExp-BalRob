@@ -5,6 +5,8 @@
 .globl _benchmark_timer_reset
 .globl _benchmark_timer_measure
 
+.globl _imu_handler_pid_entry_dummy
+
 .section .text
 _benchmark_timer_reset:
 	dmb
@@ -50,6 +52,9 @@ _benchmark_timer_measure:
 	dmb
 	dsb
 	isb
+	bx lr
+
+_imu_handler_pid_entry_dummy:
 	bx lr
 
 #endif
