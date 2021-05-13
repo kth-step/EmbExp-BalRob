@@ -21,6 +21,11 @@
 #include <pid.h>
 
 
+#ifdef __BENCHMARK_MODE
+void benchmark_run();
+#endif
+
+
 int main(void) {
 	// platform setup code
 	hw_clock_init();
@@ -30,6 +35,19 @@ int main(void) {
 
 
 	// application code
+#ifdef __BENCHMARK_MODE
+	ui_init();
+	io_init();
+	out_info("");
+	out_info("--------------------------------");
+	out_info("io ready!");
+	out_info("benchmark start");
+
+	while(1) {
+		benchmark_run();
+	}
+#else
+
 	ui_init();
 	io_init();
 	out_info("");
@@ -71,6 +89,7 @@ int main(void) {
 		ui_set_led(0, b);
 		ui_set_led(1, b);
     }
+#endif
 
     return 0;
 }

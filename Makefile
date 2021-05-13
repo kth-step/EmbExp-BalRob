@@ -39,6 +39,14 @@ SFLAGS_EXTRA = -mcpu=cortex-m0 -mthumb
 CFLAGS_EXTRA = ${OPTIMIZATION_FLAG} -g3 -specs=nosys.specs -DUSE_OLD_STYLE_DATA_BSS_INIT -ffunction-sections -fdata-sections -mcpu=cortex-m0 -mthumb -fno-common -D__USE_CMSIS=CMSIS_CORE_LPC11xx
 LDFLAGS_POST = -L$(ARMSYS) -L$(ARMLIB) -lgcc
 
+
+ifeq ("$(BENCHMARK_MODE)", "")
+  DEFINES_EXTRA  = 
+else
+  DEFINES_EXTRA  = -D__BENCHMARK_MODE
+endif
+
+
 INCFLAGS     = $(foreach d,$(CODE_DIRS),-I$d/inc)
 SFLAGS       = ${SFLAGS_EXTRA} ${INCFLAGS}
 CFLAGS	     = -std=gnu99 -Wall -fno-builtin -fno-stack-protector ${INCFLAGS} ${CFLAGS_EXTRA} -fdump-rtl-expand
@@ -51,10 +59,10 @@ LDFLAGS_PRE  = -Bstatic -nostartfiles -nostdlib
 all: $(NAME)
 
 %.o: %.S ${INCLUDE_FILES} Makefile
-	${CROSS}cpp ${INCFLAGS} $< | ${CROSS}as ${SFLAGS} -o $@ -
+	${CROSS}cpp ${INCFLAGS} ${DEFINES_EXTRA} $< | ${CROSS}as ${SFLAGS} -o $@ -
 
 %.o: %.c ${INCLUDE_FILES} Makefile
-	${CROSS}gcc ${CFLAGS} -c -o $@ $<
+	${CROSS}gcc ${CFLAGS} ${DEFINES_EXTRA} -c -o $@ $<
 
 $(NAME): ${OBJECTS} ${INCLUDE_FILES} $(LINKERFILE) Makefile
 	mkdir -p ${OUTDIR}
