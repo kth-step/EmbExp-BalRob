@@ -168,8 +168,8 @@ void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
 #ifdef ENCODERS_ENABLED
 	float loc_error = -encoder_values[0] - 0.0f;
 	angle_offset = loc_error / 20;
-#endif
 	angle_offset = angle_offset > 1.0f ? 1.0f : (angle_offset < -1.0f ? -1.0f : angle_offset);
+#endif
 
 	// calc angle using complementary filter
 	float accAngle =  (accZ == 0) ? 0 : (ATAN2F_FUN(accX,accZ) * RAD_TO_DEG);
