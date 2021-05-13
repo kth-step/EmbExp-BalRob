@@ -2,7 +2,8 @@ ifndef EMBEXP_OPENOCD_DIR
   $(error !!! openocd not defined)
 endif
 
-EMBEXP_GDBS_PORT=3333
+EMBEXP_GDBS_PORT=20013
+#3333
 BOARDCONFIG=lpc11c24_flash
 
 connect:
