@@ -22,9 +22,14 @@
 
 
 int main(void) {
+	// platform setup code
 	hw_clock_init();
 	hw_gpio_init();
+	// configure flash access time (careful with changes to this line, has to be in accordance with clock speed setting!)
+	LPC_FLASHCTRL->FLASHCFG = (LPC_FLASHCTRL->FLASHCFG & (~0x3)) + 0;
 
+
+	// application code
 	ui_init();
 	io_init();
 	out_info("");
