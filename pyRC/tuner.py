@@ -5,11 +5,19 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 
+import threading
+
+import balrobcomm
 import balrob
 
 from tkinter import *
 
-with balrob.get_balrob_comm() as ser:
+with balrobcomm.BalrobComm() as bc:
+	def readloop():
+		while True:
+			balrob.handle_message(bc, balrob.package_handler)
+	threading.Thread(target = readloop, daemon=True).start()
+
 	master = Tk()
 	kp_scale = Scale(master, from_=-1.0, to=1.0, resolution=0.002, orient=HORIZONTAL, length=1000)
 	kp_scale.set(0.0)
@@ -25,9 +33,9 @@ with balrob.get_balrob_comm() as ser:
 	kd_scale.set(0.0124)
 
 	def rob_motor_on():
-		balrob.set_motor(ser, True)
+		balrob.set_motor(bc, True)
 	def rob_motor_off():
-		balrob.set_motor(ser, False)
+		balrob.set_motor(bc, False)
 	def rob_update_values():
 		# (0.398, 0.002, 0.0084)
 		# -14.206
@@ -41,19 +49,19 @@ with balrob.get_balrob_comm() as ser:
 		kd_val = kd_base + kd_scale.get() *1
 		angle_val = angle_base + angle_scale.get() *10
 
-		balrob.set_pid_kp(ser, kp_val)
-		balrob.set_pid_ki(ser, ki_val)
-		balrob.set_pid_kd(ser, kd_val)
-		balrob.set_angle(ser, angle_val)
+		balrob.set_pid_kp(bc, kp_val)
+		balrob.set_pid_ki(bc, ki_val)
+		balrob.set_pid_kd(bc, kd_val)
+		balrob.set_angle(bc, angle_val)
 
 	def rob_run0():
-		balrob.set_exec(ser, 0)
+		balrob.set_exec(bc, 0)
 	def rob_run1():
-		balrob.set_exec(ser, 0)
+		balrob.set_exec(bc, 0)
 	def rob_prog():
-		balrob.send_binary(ser, "output/balrob.elf.reloadtext", 1, False)
+		balrob.send_binary(bc, "output/balrob.elf.reloadtext", 1, False)
 	def rob_verif():
-		balrob.send_binary(ser, "output/balrob.elf.reloadtext", 1, True)
+		balrob.send_binary(bc, "output/balrob.elf.reloadtext", 1, True)
 
 	Label(master, text="Kp").pack()
 	kp_scale.pack()

@@ -1,77 +1,10 @@
 import struct
-import time
-
-import serial
-import socket
-
-# serial interface
-def get_balrob_comm_serial():
-	serialdevice = "/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0"
-	return serial.Serial(serialdevice, 9600, timeout=None)
-
-# tcp interface (embexp remote)
-def get_balrob_comm_tcp():
-	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	s.connect(("localhost", 20000))
-	return s
-
-# general function to connect
-def get_balrob_comm():
-	return get_balrob_comm_tcp()
-
-# general function to read
-def read_balrob_comm(comm, n = 1):
-	if (type(comm) == serial.Serial):
-		return comm.read(n)
-	elif (type(comm) == socket.socket):
-		buf = b""
-		while len(buf) < n:
-			buf += comm.recv(n - len(buf))
-		return buf
-	else:
-		raise Exception("unknown comm type - cannot read")
-
-# general function to write
-def write_balrob_comm(comm, d):
-	if (type(comm) == serial.Serial):
-		comm.write(d)
-		return None
-	elif (type(comm) == socket.socket):
-		comm.send(d)
-		return None
-	else:
-		raise Exception("unknown comm type - cannot write")
 
 
-# decoding of packages with a comm
-def decode_package(comm, handler):
-	n_failpacks = 0
-	while True:
-		x = None
-		while True:
-			x = read_balrob_comm(comm)[0]
-			if x == 0x55:
-				break
-			print(f"aaaaaa - {x}")
 
-		x = read_balrob_comm(comm)[0]
-		if x != 0xAA:
-			print(f"aaaaaa22222 - {x}")
-			continue
-
-		m_ch = read_balrob_comm(comm)[0]
-		m_len = read_balrob_comm(comm)[0]
-		m = read_balrob_comm(comm, m_len)
-
-		m_ok = True
-		m_ok = m_ok and (read_balrob_comm(comm)[0] == 0x88)
-		m_ok = m_ok and (read_balrob_comm(comm)[0] == 0x11)
-
-		if m_ok:
-			handler(m_ch, m)
-		else:
-			n_failpacks += 1
-			print(f"wrong packets = {n_failpacks}")
+def handle_message(bc, handler):
+	(ch, m) = bc.recv_message()
+	handler(ch, m)
 
 def parse_pid_pack(m):
 	#print(m)
@@ -110,19 +43,8 @@ def package_handler(ch, m):
 	else:
 		print(f"unhandled channel {ch} - {m}")
 
-def send_data(comm, ch, m):
-	m_len = len(m)
-	if m_len >= 255:
-		raise Exception(f"message too long ({m_len}): {m}")
-
-	m1 = struct.pack("<BBBB", 0x55, 0xAA, ch, m_len)
-	m2 = struct.pack("<BB", 0x88, 0x11)
-
-	msg = m1 + m + m2
-	#print(msg)
-
-	write_balrob_comm(comm, msg)
-	time.sleep(0.3)
+def send_data(bc, ch, m):
+	bc.send_message((ch, m))
 
 def set_motor(comm, is_on):
 	m = struct.pack("<l", 1 if is_on else 0)
