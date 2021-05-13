@@ -50,13 +50,19 @@ def parse_pid_pack(m):
 	}
 	return p
 
+def trydecode(m):
+	try:
+		return m.decode()
+	except:
+		return m
+
 def package_handler(ch, m):
 	if ch == 0:
-		print(f"inf - {m}")
+		print(f"inf - {trydecode(m)}")
 	elif ch == 1:
-		print(f"dbg - {m}")
+		print(f"dbg - {trydecode(m)}")
 	elif ch == 2:
-		print(f"err - {m}")
+		print(f"err - {trydecode(m)}")
 	elif ch == 10:
 		print("pid")
 		print(parse_pid_pack(m))

@@ -48,6 +48,7 @@ int main(void) {
 		out_error("imu stuck!");
 		while (1);
 	}
+
 	out_info("startup done!");
 	out_info("--------------------------------");
 
@@ -55,7 +56,8 @@ int main(void) {
 
 /*
     while(1) {
-        out_info_inthex("x", (uint32_t)(encoder_values[1]));
+        out_info_inthex("x", (uint32_t)(encoder_values[0]));
+	//motor_set_f(1.0f, 0);
     }
 */
 

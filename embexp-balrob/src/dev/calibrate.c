@@ -50,7 +50,7 @@ void calculate_offset(int16_t acc_x_offset_start, int16_t acc_z_offset_start, in
 	int16_t acc_x_mean, acc_z_mean, gyro_y_mean;
 
 	if (set_offset(acc_x_offset, acc_z_offset, gyro_y_offset)) {	//if we fail to set the offsets, we quit the function but we print that we failed
-		io_error("TIMEOUT\n");
+		out_error("TIMEOUT\n");
 		return;
 	}
 
@@ -62,7 +62,7 @@ void calculate_offset(int16_t acc_x_offset_start, int16_t acc_z_offset_start, in
 
 	while(1) {
 		if (set_offset(acc_x_offset, acc_z_offset, gyro_y_offset)) {	//if we fail to set the offsets, we quit the function but we print that we failed
-			io_error("TIMEOUT\n");
+			out_error("TIMEOUT\n");
 			return;
 		}
 
@@ -102,7 +102,7 @@ void calculate_offset(int16_t acc_x_offset_start, int16_t acc_z_offset_start, in
 		}
 
 	}
-	io_info("cali is finished");
+	out_info("cali is finished");
 	/*UART_PutSTR("Cali is finished\n");*/
 }
 

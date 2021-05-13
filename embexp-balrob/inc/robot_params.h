@@ -9,7 +9,8 @@
 #define ROBOT_PARAMS_H_
 
 //#define BOT_LEGO
-#define BOT_MINI
+//#define BOT_MINI
+#define BOT_BALPEN
 
 #define GCC_COMPAT_COMPILATION
 
@@ -32,6 +33,11 @@
 #define ACC_Z_OFF				1096
 #define GYRO_Y_OFF				18
 #endif
+#ifdef BOT_BALPEN
+#define ACC_X_OFF				-1399
+#define ACC_Z_OFF				790
+#define GYRO_Y_OFF				78
+#endif
 
 
 
@@ -46,6 +52,10 @@
 //#define ANGLETARGET 6.2
 //#define ANGLETARGET 5.88
 #define ANGLETARGET 8.44
+#endif
+#ifdef BOT_BALPEN
+#define GYR_SCALE 250
+#define ANGLETARGET -3.0
 #endif
 
 
@@ -88,7 +98,13 @@
 #define INIT_KI 0.9
 #define INIT_KD 0.00375
 #endif
+#ifdef BOT_BALPEN
+#define INIT_KP 0.086
+#define INIT_KI 0.192
+#define INIT_KD 0.0038
+#endif
 
+#define ERROR_SUM_LIMIT 200
 
 
 // features
@@ -96,6 +112,10 @@
 #ifdef BOT_LEGO
 #define ENCODERS_ENABLED
 #endif
+#ifdef BOT_BALPEN
+#define ENCODERS_ENABLED
+#endif
+
 
 
 #define KEEPINFLASH __attribute__((__section__(".keepinflash")))

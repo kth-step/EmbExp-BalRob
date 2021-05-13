@@ -188,7 +188,7 @@ void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
 	float errorDiff = error - errorLast;
 	errorLast = error;
 	float errorSumNew = errorSum + (error);
-	errorSum = (!(errorSumNew < 300)) ? 300 : (errorSumNew < -300 ? -300 : errorSumNew);
+	errorSum = (!(errorSumNew < ERROR_SUM_LIMIT)) ? ERROR_SUM_LIMIT : (errorSumNew < -ERROR_SUM_LIMIT ? -ERROR_SUM_LIMIT : errorSumNew);
 
 	// compute output signal
 //#define BUG
