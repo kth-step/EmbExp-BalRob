@@ -2,34 +2,70 @@ import struct
 import time
 
 import serial
+import socket
 
-
+# serial interface
 def get_balrob_comm_serial():
 	serialdevice = "/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0"
 	return serial.Serial(serialdevice, 9600, timeout=None)
 
-def decode_package(ser, handler):
+# tcp interface (embexp remote)
+def get_balrob_comm_tcp():
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s.connect(("localhost", 20000))
+	return s
+
+# general function to connect
+def get_balrob_comm():
+	return get_balrob_comm_tcp()
+
+# general function to read
+def read_balrob_comm(comm, n = 1):
+	if (type(comm) == serial.Serial):
+		return comm.read(n)
+	elif (type(comm) == socket.socket):
+		buf = b""
+		while len(buf) < n:
+			buf += comm.recv(n - len(buf))
+		return buf
+	else:
+		raise Exception("unknown comm type - cannot read")
+
+# general function to write
+def write_balrob_comm(comm, d):
+	if (type(comm) == serial.Serial):
+		comm.write(d)
+		return None
+	elif (type(comm) == socket.socket):
+		comm.send(d)
+		return None
+	else:
+		raise Exception("unknown comm type - cannot write")
+
+
+# decoding of packages with a comm
+def decode_package(comm, handler):
 	n_failpacks = 0
 	while True:
 		x = None
 		while True:
-			x = ser.read()[0]
+			x = read_balrob_comm(comm)[0]
 			if x == 0x55:
 				break
 			print(f"aaaaaa - {x}")
 
-		x = ser.read()[0]
+		x = read_balrob_comm(comm)[0]
 		if x != 0xAA:
 			print(f"aaaaaa22222 - {x}")
 			continue
 
-		m_ch = ser.read()[0]
-		m_len = ser.read()[0]
-		m = ser.read(m_len)
+		m_ch = read_balrob_comm(comm)[0]
+		m_len = read_balrob_comm(comm)[0]
+		m = read_balrob_comm(comm, m_len)
 
 		m_ok = True
-		m_ok = m_ok and (ser.read()[0] == 0x88)
-		m_ok = m_ok and (ser.read()[0] == 0x11)
+		m_ok = m_ok and (read_balrob_comm(comm)[0] == 0x88)
+		m_ok = m_ok and (read_balrob_comm(comm)[0] == 0x11)
 
 		if m_ok:
 			handler(m_ch, m)
@@ -74,7 +110,7 @@ def package_handler(ch, m):
 	else:
 		print(f"unhandled channel {ch} - {m}")
 
-def send_data(ser, ch, m):
+def send_data(comm, ch, m):
 	m_len = len(m)
 	if m_len >= 255:
 		raise Exception(f"message too long ({m_len}): {m}")
@@ -85,41 +121,41 @@ def send_data(ser, ch, m):
 	msg = m1 + m + m2
 	#print(msg)
 
-	ser.write(msg)
+	write_balrob_comm(comm, msg)
 	time.sleep(0.3)
 
-def set_motor(ser, is_on):
+def set_motor(comm, is_on):
 	m = struct.pack("<l", 1 if is_on else 0)
-	send_data(ser, 50, m)
+	send_data(comm, 50, m)
 
-def set_pid_info(ser, is_on):
+def set_pid_info(comm, is_on):
 	m = struct.pack("<l", 1 if is_on else 0)
-	send_data(ser, 51, m)
+	send_data(comm, 51, m)
 
-def set_exec(ser, v):
+def set_exec(comm, v):
 	m = struct.pack("<l", v)
-	send_data(ser, 80, m)
+	send_data(comm, 80, m)
 
-def add_angle(ser, a):
+def add_angle(comm, a):
 	m = struct.pack("<f", a)
-	send_data(ser, 71, m)
+	send_data(comm, 71, m)
 
-def reset_uploads(ser):
+def reset_uploads(comm):
 	m = struct.pack("<l", 0)
-	send_data(ser, 81, m)
+	send_data(comm, 81, m)
 
-def send_code(ser, mloc, dat, verify_data = True):
+def send_code(comm, mloc, dat, verify_data = True):
 	c = 82 if verify_data else 83
 	m = struct.pack("<L", mloc)
-	send_data(ser, c, m+dat)
+	send_data(comm, c, m+dat)
 
-def send_binary(ser, filename, idx, verify_data = True):
+def send_binary(comm, filename, idx, verify_data = True):
 	s_procedure = "verification" if verify_data else "writing"
 	print(f"start {s_procedure} - {filename} - {idx}")
-	reset_uploads(ser)
+	reset_uploads(comm)
 
-	#send_code(ser, 0x0, b"\xb0\xb5")
-	#send_code(ser, 0x2, b"\x98\xb0")
+	#send_code(comm, 0x0, b"\xb0\xb5")
+	#send_code(comm, 0x2, b"\x98\xb0")
 	#return
 
 	print("")
@@ -137,26 +173,26 @@ def send_binary(ser, filename, idx, verify_data = True):
 			n_curchunk = min(chunksize, n_remaining)
 			dat = f.read(n_curchunk)
 			n_processed += len(dat)
-			send_code(ser, mloc, dat, verify_data)
+			send_code(comm, mloc, dat, verify_data)
 			print(f"\r{n_processed/filelength*100:.{1}f}%", end = '')
 	print("")
 	print(f"done {s_procedure} - {filename} - {idx}")
 
 
 
-def set_pid_kp(ser, v):
+def set_pid_kp(comm, v):
 	m = struct.pack("<f", v)
-	send_data(ser, 60, m)
+	send_data(comm, 60, m)
 
-def set_pid_ki(ser, v):
+def set_pid_ki(comm, v):
 	m = struct.pack("<f", v)
-	send_data(ser, 61, m)
+	send_data(comm, 61, m)
 
-def set_pid_kd(ser, v):
+def set_pid_kd(comm, v):
 	m = struct.pack("<f", v)
-	send_data(ser, 62, m)
+	send_data(comm, 62, m)
 
-def set_angle(ser, v):
+def set_angle(comm, v):
 	m = struct.pack("<f", v)
-	send_data(ser, 70, m)
+	send_data(comm, 70, m)
 

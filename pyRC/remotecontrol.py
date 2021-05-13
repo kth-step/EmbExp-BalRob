@@ -7,7 +7,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 
 import balrob
 
-with balrob.get_balrob_comm_serial() as ser:
+with balrob.get_balrob_comm() as ser:
 	print("="*10)
 	print("p,on/off")
 	print("m,on/off")

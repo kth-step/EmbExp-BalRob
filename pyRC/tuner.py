@@ -9,7 +9,7 @@ import balrob
 
 from tkinter import *
 
-with balrob.get_balrob_comm_serial() as ser:
+with balrob.get_balrob_comm() as ser:
 	master = Tk()
 	kp_scale = Scale(master, from_=-1.0, to=1.0, resolution=0.002, orient=HORIZONTAL, length=1000)
 	kp_scale.set(0.0)
