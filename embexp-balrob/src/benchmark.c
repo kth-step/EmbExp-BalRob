@@ -158,9 +158,11 @@ void benchmark_run() {
   out_info_inthex("cyclesres", cycles - cycles_bl);
 
   //while(1);
+/*
   for (uint32_t i = 0; i < 1000 * 2; i++) {
     _benchmark_helper_wait_1ms();
   }
+*/
 }
 
 #endif

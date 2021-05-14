@@ -126,7 +126,7 @@ def gen_random_inputs_binary():
 	return inputs
 
 print("generating inputs")
-inputs_list = [gen_random_inputs_binary() for _ in range(2)]
+inputs_list = [gen_random_inputs_binary() for _ in range(10)]
 
 print("starting experiments")
 try:
@@ -138,11 +138,13 @@ try:
 			inputs = set_inputs_motor_on(inputs)
 			#print(inputs_to_dict(inputs)["motor_on"])
 
+			start_time = time.time()
 			cycles = execute_experiment(bc, inputs)
-			print(f"==========>>>>> {cycles}")
+			time_diff = time.time() - start_time
+			print(f"==========>>>>> {cycles} (exp time: {time_diff:.2f}s)")
 
 except KeyboardInterrupt:
-	pass
+	print("")
 
 print("terminating.")
 
