@@ -39,6 +39,7 @@ def read_balrob_comm(comm, n = 1):
 def write_balrob_comm(comm, d):
 	if (type(comm) == serial.Serial):
 		comm.write(d)
+		time.sleep(0.3)
 		return None
 	elif (type(comm) == socket.socket):
 		comm.send(d)
@@ -90,7 +91,6 @@ def encode_package(comm, ch, m):
 	#print(msg)
 
 	write_balrob_comm(comm, msg)
-	time.sleep(0.3)
 
 # abstraction for messages (helper classes)
 # ======================================================================
