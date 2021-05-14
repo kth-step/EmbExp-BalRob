@@ -50,14 +50,15 @@ def run_experiment(bc):
 	cycles = int(m.decode(), 16)
 	return cycles
 
-def run_experiment_fadd(bc, a, b):
+def run_experiment_f2(bc, i, a, b):
 	assert(type(a) == float)
 	assert(type(b) == float)
+	assert(0 <= i and i <= 1)
 
 	m = struct.pack("<ff", a, b)
 
-	bc.send_message((102, m))
-	# expect result and then ok102
+	bc.send_message((102 + i, m))
+	# expect result and then ok(102 + i)
 
 	#print("collecting cycles results")
 	(ch, m) = bc.recv_message()
@@ -76,10 +77,10 @@ def run_experiment_fadd(bc, a, b):
 	res = int(m.decode(), 16)
 	(res,) = struct.unpack("<f", struct.pack("<L", res))
 
-	#print("ok102")
+	#print("ok(102 + i)")
 	(ch, m) = bc.recv_message()
 	assert(ch == 0)
-	assert(m == b"ok102")
+	assert(m == f"ok{102+i}".encode("ascii"))
 
 	return (cycles, res)
 
@@ -98,9 +99,21 @@ def execute_experiment(bc, inputs):
 # composition of elementary steps (fadd)
 def execute_experiment_fadd(bc, a, b):
 	#print("running experiment")
-	(cycles, res) = run_experiment_fadd(bc, a, b)
+	(cycles, res) = run_experiment_f2(bc, 0, a, b)
 	#print(f"================================>>> {a} + {b} = {res}")
-	#assert(a+b == res)
+	#python_res = struct.unpack("<f", struct.pack("<f", a+b))[0]
+	#print(f"{res - python_res} ({a}, {b}, {res}, {python_res})")
+	#assert(python_res == res)
+	return cycles
+
+# composition of elementary steps (fdiv)
+def execute_experiment_fdiv(bc, a, b):
+	#print("running experiment")
+	(cycles, res) = run_experiment_f2(bc, 1, a, b)
+	#print(f"================================>>> {a} / {b} = {res}")
+	#python_res = struct.unpack("<f", struct.pack("<f", a/b))[0]
+	#print(f"{res - python_res} ({a}, {b}, {res}, {python_res})")
+	#assert(python_res == res)
 	return cycles
 
 

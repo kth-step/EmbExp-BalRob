@@ -45,7 +45,8 @@ if True:
 				inputs_s = (a, b)
 				cycles = None
 				try:
-					cycles = benchmarklib.execute_experiment_fadd(bc, a, b)
+					#cycles = benchmarklib.execute_experiment_fadd(bc, a, b)
+					cycles = benchmarklib.execute_experiment_fdiv(bc, a, b)
 					print(f"==========>>>>> {cycles}")
 					if cycles > max_exp[0]:
 						max_exp = (cycles, (a, b))

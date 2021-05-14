@@ -24,6 +24,7 @@ void imu_handler_pid_set_state_IMU(int16_t __accX, int16_t __accZ, int16_t __gyr
 // target function
 void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime);
 float __aeabi_fadd(float a, float b);
+float __aeabi_fdiv(float a, float b);
 
 // from asm code
 void _benchmark_timer_reset();
@@ -76,6 +77,9 @@ void set_inputs() {
   while (1) {
     int in_ch;
     uint32_t buf_ptr;
+
+    uint32_t cycles_bl, cycles;
+    float a, b, res;
 
     // handle io
     while ((in_ch = in_handle()) == -3);
@@ -142,17 +146,36 @@ void set_inputs() {
         }
 
         buf_ptr = (uint32_t)in_buffer + 4;
-        float a = *((float*)(buf_ptr));
+        a = *((float*)(buf_ptr));
         buf_ptr += sizeof(float);
-        float b = *((float*)(buf_ptr));
+        b = *((float*)(buf_ptr));
         buf_ptr += sizeof(float);
 
-        uint32_t cycles_bl = benchmark_measure2((float (*)(float,float))_imu_handler_pid_entry_dummy, 0, 0);
-        uint32_t cycles = benchmark_measure2(__aeabi_fadd, a, b);
+        cycles_bl = benchmark_measure2((float (*)(float,float))_imu_handler_pid_entry_dummy, 0, 0);
+        cycles = benchmark_measure2(__aeabi_fadd, a, b);
         out_info_inthex("cyclesres", cycles - cycles_bl);
-	float res = __aeabi_fadd(a, b);
+        res = __aeabi_fadd(a, b);
         out_info_inthex("res", *((uint32_t*)&res));
         out_info("ok102");
+        break;
+      case 103:
+        if (in_data_len != (4*(2))) {
+          out_info("nok103");
+          break;
+        }
+
+        buf_ptr = (uint32_t)in_buffer + 4;
+        a = *((float*)(buf_ptr));
+        buf_ptr += sizeof(float);
+        b = *((float*)(buf_ptr));
+        buf_ptr += sizeof(float);
+
+        cycles_bl = benchmark_measure2((float (*)(float,float))_imu_handler_pid_entry_dummy, 0, 0);
+        cycles = benchmark_measure2(__aeabi_fdiv, a, b);
+        out_info_inthex("cyclesres", cycles - cycles_bl);
+        res = __aeabi_fdiv(a, b);
+        out_info_inthex("res", *((uint32_t*)&res));
+        out_info("ok103");
         break;
       default:
         if (in_ch >= 0) {
