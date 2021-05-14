@@ -50,6 +50,39 @@ def run_experiment(bc):
 	cycles = int(m.decode(), 16)
 	return cycles
 
+def run_experiment_fadd(bc, a, b):
+	assert(type(a) == float)
+	assert(type(b) == float)
+
+	m = struct.pack("<ff", a, b)
+
+	bc.send_message((102, m))
+	# expect result and then ok102
+
+	#print("collecting cycles results")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"cyclesres")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	cycles = int(m.decode(), 16)
+
+	#print("collecting computation results")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"res")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	res = int(m.decode(), 16)
+	(res,) = struct.unpack("<f", struct.pack("<L", res))
+
+	#print("ok102")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"ok102")
+
+	return (cycles, res)
+
 # composition of elementary steps
 def execute_experiment(bc, inputs):
 	#print("sending inputs")
@@ -61,6 +94,15 @@ def execute_experiment(bc, inputs):
 	#print("receiving messages until ready for inputs")
 	wait_until_ready(bc)
 	return cycles
+
+# composition of elementary steps (fadd)
+def execute_experiment_fadd(bc, a, b):
+	#print("running experiment")
+	(cycles, res) = run_experiment_fadd(bc, a, b)
+	#print(f"================================>>> {a} + {b} = {res}")
+	#assert(a+b == res)
+	return cycles
+
 
 
 
@@ -117,6 +159,12 @@ def gen_float_32(sign, exp, mant):
 	as_int = (sign << 31) | (exp << 23) | (mant << 0)
 	(floatval,) = struct.unpack(">f", struct.pack(">L", as_int))
 	return floatval
+
+def gen_rand_float():
+	sign = random.randint(0x0, 0x1)
+	exp  = random.randint(0x0, 0xff)
+	mant = random.randint(0x0, 0x7fffff)
+	return gen_float_32(sign, exp, mant)
 
 
 # example inputs (as dictionary)

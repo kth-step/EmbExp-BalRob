@@ -23,8 +23,8 @@ special_inputs = benchmarklib.dict_to_inputs(benchmarklib.fixed_inputs_dict_5)
 num_exps = 1000
 #inputs_list = [benchmarklib.gen_random_inputs_binary() for _ in range(num_exps)]
 #inputs_list = [benchmarklib.gen_random_inputs_distribution() for _ in range(num_exps)]
-#inputs_list = [special_inputs]
-inputs_list = [benchmarklib.gen_random_input_binary_k_variation(special_inputs) for _ in range(num_exps)]
+inputs_list = [special_inputs]
+#inputs_list = [benchmarklib.gen_random_input_binary_k_variation(special_inputs) for _ in range(num_exps)]
 
 experiment_results = []
 now_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -32,6 +32,39 @@ results_dir = "experiment_results"
 experiment_results_filename = f"{results_dir}/{now_str}.json"
 if not os.path.isdir(results_dir):
 	os.mkdir(results_dir)
+
+if True:
+	overall_start_time = time.time()
+	max_exp = (0, None)
+	experiment_results = []
+	try:
+		with balrobcomm.BalrobComm() as bc:
+			for _ in range(num_exps):
+				a = benchmarklib.gen_rand_float()
+				b = benchmarklib.gen_rand_float()
+				inputs_s = (a, b)
+				cycles = None
+				try:
+					cycles = benchmarklib.execute_experiment_fadd(bc, a, b)
+					print(f"==========>>>>> {cycles}")
+					if cycles > max_exp[0]:
+						max_exp = (cycles, (a, b))
+				finally:
+					experiment_result = (inputs_s, cycles, None)
+					experiment_results.append(experiment_result)
+	except KeyboardInterrupt:
+		print("")
+	finally:
+		with open(experiment_results_filename, "w") as f:
+			json.dump(experiment_results, f)
+		print("max cycles experiment:")
+		print(max_exp)
+		time_diff = time.time() - overall_start_time
+		print(40 * "=")
+		print(f"    overall benchmarking time: {time_diff:.2f}s")
+		print(40 * "=")
+	print("terminating.")
+	sys.exit(0)
 
 print("starting experiments")
 overall_start_time = time.time()
