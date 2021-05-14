@@ -116,7 +116,7 @@ class CommState:
 		self.f_queue = queue.Queue()
 
 	def get_element(self):
-		return self.f_queue.get()
+		return self.f_queue.get(timeout=2)
 
 	def get_num_available(self):
 		return self.f_queue.qsize()
