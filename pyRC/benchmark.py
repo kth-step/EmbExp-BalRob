@@ -33,7 +33,7 @@ def send_inputs(bc, inputs):
 	bc.send_message((101, inputs))
 
 	time.sleep(0.1)
-	print(bc.recv_available())
+	#print(bc.recv_available())
 	assert(bc.recv_available() == 1)
 
 	(ch, m) = bc.recv_message()
@@ -57,13 +57,13 @@ def run_experiment(bc):
 	return cycles
 
 def execute_experiment(bc, inputs):
-	print("receiving messages until ready for inputs")
+	#print("receiving messages until ready for inputs")
 	wait_until_ready(bc)
 
-	print("sending inputs")
+	#print("sending inputs")
 	send_inputs(bc, inputs)
 
-	print("running experiment")
+	#print("running experiment")
 	cycles = run_experiment(bc)
 	return cycles
 
@@ -115,16 +115,29 @@ def inputs_to_dict(inputs):
 	d = dict(list(zip(keylist, s)))
 	return d
 
+def set_inputs_motor_on(inputs):
+	arr = bytearray(inputs)
+	arr[4*(6) + 1*(1)] = 1
+	return bytes(arr)
+
 inputs_bin_len = len(dict_to_inputs(fixed_inputs_dict_1))
 def gen_random_inputs_binary():
-	return bytes(random.getrandbits(8) for _ in range(inputs_bin_len))
+	inputs = bytes(random.getrandbits(8) for _ in range(inputs_bin_len))
+	return inputs
 
+print("generating inputs")
+inputs_list = [gen_random_inputs_binary() for _ in range(2)]
+
+print("starting experiments")
 try:
 	with balrobcomm.BalrobComm() as bc:
 		# loop through several inputs
-		while True:
+		for inputs in inputs_list:
 			#inputs = dict_to_inputs(fixed_inputs_dict_2)
-			inputs = gen_random_inputs_binary()
+			#inputs = gen_random_inputs_binary()
+			inputs = set_inputs_motor_on(inputs)
+			#print(inputs_to_dict(inputs)["motor_on"])
+
 			cycles = execute_experiment(bc, inputs)
 			print(f"==========>>>>> {cycles}")
 

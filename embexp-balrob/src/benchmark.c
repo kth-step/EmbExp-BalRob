@@ -140,14 +140,14 @@ void set_inputs() {
 
 // one benchmark round (input-run-output)
 void benchmark_run() {
-  out_info("\r\na benchmark");
+  //out_info("\r\na benchmark");
 
   //out_info("disabling all interrupts (although they should be off at this point)");
   disable_all_interrupts();
 
   //out_info("baseline");
   uint32_t cycles_bl = benchmark_measure(_imu_handler_pid_entry_dummy, 0, 0);
-  out_info_inthex("cyclesbl", cycles_bl);
+  //out_info_inthex("cyclesbl", cycles_bl);
 
   // set the inputs (fixed or after retrieving them from the uart)
   //out_info_inthex("szfl", sizeof(float));
