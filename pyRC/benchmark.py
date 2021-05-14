@@ -19,9 +19,13 @@ import benchmarklib
 # beginning of the script
 # ===============================================================
 print("generating inputs")
-inputs_list = [benchmarklib.gen_random_inputs_binary() for _ in range(1000)]
-#inputs_list = [benchmarklib.gen_random_inputs_distribution() for _ in range(1)]
-#inputs_list = [benchmarklib.dict_to_inputs(benchmarklib.fixed_inputs_dict_4)]
+special_inputs = benchmarklib.dict_to_inputs(benchmarklib.fixed_inputs_dict_5)
+num_exps = 1000
+#inputs_list = [benchmarklib.gen_random_inputs_binary() for _ in range(num_exps)]
+#inputs_list = [benchmarklib.gen_random_inputs_distribution() for _ in range(num_exps)]
+#inputs_list = [special_inputs]
+inputs_list = [benchmarklib.gen_random_input_binary_k_variation(special_inputs) for _ in range(num_exps)]
+
 experiment_results = []
 now_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 results_dir = "experiment_results"

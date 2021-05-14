@@ -189,6 +189,22 @@ fixed_inputs_dict_4 = {
 	"gyrY"        : -7592
 }
 
+fixed_inputs_dict_5 = {
+	"kp"          : 37112590336.0,
+	"ki"          : -4.3451322651937495e-39,
+	"kd"          : -1.5269077360130874e+2,
+	"angleLast"   : 0.7656,
+	"errorLast"   : -2557051.0,
+	"errorSum"    : -1000.9250302879678766e-23,
+	"msg_flag"    : 1,
+	"motor_on"    : 1,
+	"angleTarget" : 1.0282247330339519e-23,
+	"pid_counter" : 0,
+	"accX"        : -31588,
+	"accZ"        : -8103,
+	"gyrY"        : -7592
+}
+
 
 inputs_types = {
 	"kp"          : (float, 32),
@@ -213,6 +229,13 @@ def gen_random_inputs_binary():
 	inputs = bytes(random.getrandbits(8) for _ in range(inputs_bin_len))
 	return inputs
 
+def gen_random_input_binary_k_variation(inputs):
+	length = 4*(3)
+	arr = bytearray(inputs)
+	arr_var = bytearray(random.getrandbits(8) for _ in range(length))
+	return bytes(arr_var + arr[length:])
+
+"""
 def gen_rand_distribution(t):
 	if t == (float, 32):
 		# float("-inf"), float("inf")
@@ -233,3 +256,5 @@ def gen_random_inputs_distribution():
 	raise Exception("")
 	inputs = bytes(random.getrandbits(8) for _ in range(inputs_bin_len))
 	return inputs
+"""
+
