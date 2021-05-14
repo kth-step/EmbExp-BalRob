@@ -35,6 +35,8 @@ void _imu_handler_pid_entry_dummy(uint8_t noyield, uint32_t pid_sampletime);
 
 // composite measurement primitive
 uint32_t benchmark_measure(void (*fun_ptr)(uint8_t, uint32_t), uint8_t __noyield, uint32_t __pid_sampletime) {
+  // TODO: WHHHYYYYYYYYYYYYYYYYYYY?
+  fun_ptr = (void (*)(uint8_t, uint32_t))(((uint32_t)fun_ptr) | 0x1);
 
   _benchmark_timer_reset();
   fun_ptr(__noyield, __pid_sampletime);
@@ -50,6 +52,8 @@ uint32_t benchmark_measure(void (*fun_ptr)(uint8_t, uint32_t), uint8_t __noyield
 }
 // quick and dirty adaption of "composite measurement primitive"
 uint32_t benchmark_measure2(float (*fun_ptr)(float, float), float a, float b) {
+  // TODO: WHHHYYYYYYYYYYYYYYYYYYY?
+  fun_ptr = (float (*)(float, float))(((uint32_t)fun_ptr) | 0x1);
 
   _benchmark_timer_reset();
   fun_ptr(a, b);
@@ -65,6 +69,8 @@ uint32_t benchmark_measure2(float (*fun_ptr)(float, float), float a, float b) {
 }
 // quick and dirty adaption of "composite measurement primitive"
 uint32_t benchmark_measure3(void (*fun_ptr)(int32_t, int32_t), int32_t a, int32_t b) {
+  // TODO: WHHHYYYYYYYYYYYYYYYYYYY?
+  fun_ptr = (void (*)(int32_t, int32_t))(((uint32_t)fun_ptr) | 0x1);
 
   _benchmark_timer_reset();
   fun_ptr(a, b);
