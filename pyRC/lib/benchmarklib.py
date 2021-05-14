@@ -84,6 +84,30 @@ def run_experiment_f2(bc, i, a, b):
 
 	return (cycles, res)
 
+def run_experiment_motor_set(bc, a, b):
+	assert(type(a) == int)
+	assert(type(b) == int)
+
+	m = struct.pack("<ll", a, b)
+
+	bc.send_message((105, m))
+	# expect result and then ok(105)
+
+	#print("collecting cycles results")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"cyclesres")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	cycles = int(m.decode(), 16)
+
+	#print("ok(105)")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"ok105")
+
+	return cycles
+
 # composition of elementary steps
 def execute_experiment(bc, inputs):
 	#print("sending inputs")
@@ -114,6 +138,12 @@ def execute_experiment_fdiv(bc, a, b):
 	#python_res = struct.unpack("<f", struct.pack("<f", a/b))[0]
 	#print(f"{res - python_res} ({a}, {b}, {res}, {python_res})")
 	#assert(python_res == res)
+	return cycles
+
+# composition of elementary steps (motor_set)
+def execute_experiment_motor_set(bc, a, b):
+	#print("running experiment")
+	cycles = run_experiment_motor_set(bc, a, b)
 	return cycles
 
 
@@ -178,6 +208,10 @@ def gen_rand_float():
 	exp  = random.randint(0x0, 0xff)
 	mant = random.randint(0x0, 0x7fffff)
 	return gen_float_32(sign, exp, mant)
+
+def gen_rand_int32():
+	v = random.randint(-2147483648, 2147483647)
+	return v
 
 
 # example inputs (as dictionary)

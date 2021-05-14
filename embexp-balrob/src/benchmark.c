@@ -25,6 +25,7 @@ void imu_handler_pid_set_state_IMU(int16_t __accX, int16_t __accZ, int16_t __gyr
 void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime);
 float __aeabi_fadd(float a, float b);
 float __aeabi_fdiv(float a, float b);
+void motor_set(int32_t l, int32_t r);
 
 // from asm code
 void _benchmark_timer_reset();
@@ -62,6 +63,21 @@ uint32_t benchmark_measure2(float (*fun_ptr)(float, float), float a, float b) {
 
   return cycles;
 }
+// quick and dirty adaption of "composite measurement primitive"
+uint32_t benchmark_measure3(void (*fun_ptr)(int32_t, int32_t), int32_t a, int32_t b) {
+
+  _benchmark_timer_reset();
+  fun_ptr(a, b);
+
+  uint32_t cycles = _benchmark_timer_measure();
+
+  if (cycles > 0xFFFF) {
+    out_error("unexpected cycle measurement");
+    while(1); // out_error already blocks, but here we want to be sure
+  }
+
+  return cycles;
+}
 
 
 //#define USE_FIXED_BENCHMARK_INPUTS
@@ -80,6 +96,7 @@ void set_inputs() {
 
     uint32_t cycles_bl, cycles;
     float a, b, res;
+    int32_t c, d;
 
     // handle io
     while ((in_ch = in_handle()) == -3);
@@ -177,6 +194,25 @@ void set_inputs() {
         out_info_inthex("res", *((uint32_t*)&res));
         out_info("ok103");
         break;
+
+      case 105:
+        if (in_data_len != (4*(2))) {
+          out_info("nok105");
+          break;
+        }
+
+        buf_ptr = (uint32_t)in_buffer + 4;
+        c = *((int32_t*)(buf_ptr));
+        buf_ptr += sizeof(int32_t);
+        d = *((int32_t*)(buf_ptr));
+        buf_ptr += sizeof(int32_t);
+
+        cycles_bl = benchmark_measure3((void (*)(int32_t,int32_t))_imu_handler_pid_entry_dummy, 0, 0);
+        cycles = benchmark_measure3(motor_set, c, d);
+        out_info_inthex("cyclesres", cycles - cycles_bl);
+        out_info("ok105");
+        break;
+
       default:
         if (in_ch >= 0) {
           // unknown channel

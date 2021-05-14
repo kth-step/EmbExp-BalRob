@@ -40,16 +40,20 @@ if True:
 	try:
 		with balrobcomm.BalrobComm() as bc:
 			for _ in range(num_exps):
-				a = benchmarklib.gen_rand_float()
-				b = benchmarklib.gen_rand_float()
-				inputs_s = (a, b)
+				#a = benchmarklib.gen_rand_float()
+				#b = benchmarklib.gen_rand_float()
+				#inputs_s = (a, b)
+				c = benchmarklib.gen_rand_int32()
+				d = benchmarklib.gen_rand_int32()
+				inputs_s = (c, d)
 				cycles = None
 				try:
-					#cycles = benchmarklib.execute_experiment_fadd(bc, a, b)
-					cycles = benchmarklib.execute_experiment_fdiv(bc, a, b)
+					#cycles = benchmarklib.execute_experiment_fadd(bc, *inputs_s)
+					#cycles = benchmarklib.execute_experiment_fdiv(bc, *inputs_s)
+					cycles = benchmarklib.execute_experiment_motor_set(bc, *inputs_s)
 					print(f"==========>>>>> {cycles}")
 					if cycles > max_exp[0]:
-						max_exp = (cycles, (a, b))
+						max_exp = (cycles, inputs_s)
 				finally:
 					experiment_result = (inputs_s, cycles, None)
 					experiment_results.append(experiment_result)

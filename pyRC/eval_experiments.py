@@ -30,7 +30,8 @@ experiment_results_filtered = [x for x in experiment_results if x[1] != None]
 print(f"found {len(experiment_results_filtered)} experiment results that didn't fail")
 
 maxval = max(list(map(lambda x: x[1], experiment_results_filtered)))
-print(maxval)
+minval = min(list(map(lambda x: x[1], experiment_results_filtered)))
+print(f"max: {maxval}; min: {minval}")
 
 exps_with_max = list(filter(lambda x: x[1] == maxval, experiment_results_filtered))
 
@@ -42,5 +43,5 @@ def convert_inputs(x):
 		return x
 exps_convertd = list(map(convert_inputs, exps_with_max))
 
-print(exps_convertd)
+#print(exps_convertd)
 
