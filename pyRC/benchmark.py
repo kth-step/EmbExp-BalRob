@@ -9,6 +9,10 @@ import threading
 import time
 import struct
 import random
+import json
+
+from datetime import datetime
+import os
 
 import balrobcomm
 import balrob
@@ -125,26 +129,63 @@ def gen_random_inputs_binary():
 	inputs = bytes(random.getrandbits(8) for _ in range(inputs_bin_len))
 	return inputs
 
+def bytes_to_base64(bs):
+	import base64
+	b64str = base64.b64encode(bs).decode('utf-8')
+	return b64str
+
+def base64_to_bytes(b64str):
+	import base64
+	bs = base64.b64decode(b64str.encode("ascii"))
+	return bs
+
 print("generating inputs")
-inputs_list = [gen_random_inputs_binary() for _ in range(10)]
+inputs_list = [gen_random_inputs_binary() for _ in range(1000)]
+experiment_results = []
+now = datetime.now()
+now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
+results_dir = "experiment_results"
+experiment_results_filename = f"{results_dir}/{now_str}.json"
+if not os.path.isdir(results_dir):
+	os.mkdir(results_dir)
 
 print("starting experiments")
 try:
-	with balrobcomm.BalrobComm() as bc:
-		# loop through several inputs
-		for inputs in inputs_list:
-			#inputs = dict_to_inputs(fixed_inputs_dict_2)
-			#inputs = gen_random_inputs_binary()
-			inputs = set_inputs_motor_on(inputs)
-			#print(inputs_to_dict(inputs)["motor_on"])
+	with open(experiment_results_filename + "_log", "w") as f_log:
+		f_log.write("[\n")
+		with balrobcomm.BalrobComm() as bc:
+			# loop through several inputs
+			for inputs in inputs_list:
+				#inputs = dict_to_inputs(fixed_inputs_dict_2)
+				#inputs = gen_random_inputs_binary()
+				inputs = set_inputs_motor_on(inputs)
+				#print(inputs_to_dict(inputs)["motor_on"])
 
-			start_time = time.time()
-			cycles = execute_experiment(bc, inputs)
-			time_diff = time.time() - start_time
-			print(f"==========>>>>> {cycles} (exp time: {time_diff:.2f}s)")
+				# prepare inputs for storing
+				inputs_s = bytes_to_base64(inputs)
+
+				# run the experiment
+				cycles = None
+				time_diff = None
+				try:
+					start_time = time.time()
+					cycles = execute_experiment(bc, inputs)
+					time_diff = time.time() - start_time
+					print(f"==========>>>>> {cycles} (exp time: {time_diff:.2f}s)")
+				finally:
+					# store inputs and cycle count
+					experiment_result = (inputs_s, cycles, f"{time_diff:.2f}")
+					experiment_results.append(experiment_result)
+					f_log.write(json.dumps(experiment_result))
+					f_log.write(",\n")
+					f_log.flush()
+		f_log.write("null\n]\n")
 
 except KeyboardInterrupt:
 	print("")
+finally:
+	with open(experiment_results_filename, "w") as f:
+		json.dump(experiment_results, f)
 
 print("terminating.")
 
