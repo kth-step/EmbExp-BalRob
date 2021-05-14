@@ -23,7 +23,7 @@ void imu_handler_pid_set_state_IMU(int16_t __accX, int16_t __accZ, int16_t __gyr
 
 // target function
 void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime);
-
+float __aeabi_fadd(float a, float b);
 
 // from asm code
 void _benchmark_timer_reset();
@@ -36,6 +36,21 @@ uint32_t benchmark_measure(void (*fun_ptr)(uint8_t, uint32_t), uint8_t __noyield
 
   _benchmark_timer_reset();
   fun_ptr(__noyield, __pid_sampletime);
+
+  uint32_t cycles = _benchmark_timer_measure();
+
+  if (cycles > 0xFFFF) {
+    out_error("unexpected cycle measurement");
+    while(1); // out_error already blocks, but here we want to be sure
+  }
+
+  return cycles;
+}
+// quick and dirty adaption of "composite measurement primitive"
+uint32_t benchmark_measure2(float (*fun_ptr)(float, float), float a, float b) {
+
+  _benchmark_timer_reset();
+  fun_ptr(a, b);
 
   uint32_t cycles = _benchmark_timer_measure();
 
@@ -60,6 +75,7 @@ void set_inputs() {
   out_info("wait4inputs");
   while (1) {
     int in_ch;
+    uint32_t buf_ptr;
 
     // handle io
     while ((in_ch = in_handle()) == -3);
@@ -82,7 +98,7 @@ void set_inputs() {
           break;
         }
 
-        uint32_t buf_ptr = (uint32_t)in_buffer + 4;
+        buf_ptr = (uint32_t)in_buffer + 4;
         float __kp = *((float*)(buf_ptr));
         buf_ptr += sizeof(float);
         float __ki = *((float*)(buf_ptr));
@@ -118,6 +134,25 @@ void set_inputs() {
         imu_handler_pid_set_state_IMU(__accX, __accZ, __gyrY);
 
         out_info("ok101");
+        break;
+      case 102:
+        if (in_data_len != (4*(2))) {
+          out_info("nok102");
+          break;
+        }
+
+        buf_ptr = (uint32_t)in_buffer + 4;
+        float a = *((float*)(buf_ptr));
+        buf_ptr += sizeof(float);
+        float b = *((float*)(buf_ptr));
+        buf_ptr += sizeof(float);
+
+        uint32_t cycles_bl = benchmark_measure2((float (*)(float,float))_imu_handler_pid_entry_dummy, 0, 0);
+        uint32_t cycles = benchmark_measure2(__aeabi_fadd, a, b);
+        out_info_inthex("cyclesres", cycles - cycles_bl);
+	float res = __aeabi_fadd(a, b);
+        out_info_inthex("res", *((uint32_t*)&res));
+        out_info("ok102");
         break;
       default:
         if (in_ch >= 0) {
