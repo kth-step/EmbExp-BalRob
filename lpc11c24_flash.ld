@@ -15,26 +15,22 @@ SECTIONS
                 . = 0x200;
                 *libgcc.a:*(*); /* .text* .text.* */
                 . = 0x1700;
-                EXCLUDE_FILE (*/pid.o */motor.o */motor_ct.o) *(.text*);
-                *(.keepinflash*);
+                *(.text*);
                 *(.rodata*);
                 . = ALIGN(4);
         } >flash
         
-	. = ORIGIN(ram);
+	/*. = ORIGIN(ram);*/
 	/* LOADATSLOT2 = 1; */
         .reloadtext : 
         {
                 . = 0x0 + (DEFINED(LOADATSLOT2) ? 0xa00 : 0x0);
-                */pid.o (.text*)
-                */motor.o (.text*)
-                */motor_ct.o (.text*)
                 . = 0xa00 + (DEFINED(LOADATSLOT2) ? 0xa00 : 0x0);
-        } >ram AT>flash
+        } >flash /*>ram AT>flash*/
 
         PROVIDE(_fromreloadtext = LOADADDR(.reloadtext));
         PROVIDE(_reloadtext = ADDR(.reloadtext));
-        PROVIDE(_ereloadtext = ADDR(.reloadtext) + SIZEOF(.reloadtext));
+        PROVIDE(_ereloadtext = ADDR(.reloadtext) + 0);/*SIZEOF(.reloadtext));*/
 
         .bufferspace : 
         {

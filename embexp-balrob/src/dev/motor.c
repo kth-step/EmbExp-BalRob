@@ -23,7 +23,7 @@
 
 #define TMR_PCLK		(12 * 1000 * 1000)
 #define TMR_PRESCALE	(1)
-#define TMR_FREQ		(30000)
+#define TMR_FREQ		(2000)
 
 ////////////////// pinouts for motor circuits ////////////////////
 /*

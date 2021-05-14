@@ -9,8 +9,8 @@
 #define ROBOT_PARAMS_H_
 
 //#define BOT_LEGO
-//#define BOT_MINI
-#define BOT_BALPEN
+#define BOT_MINI
+//#define BOT_BALPEN
 
 #define GCC_COMPAT_COMPILATION
 
