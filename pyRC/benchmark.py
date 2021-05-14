@@ -150,6 +150,7 @@ if not os.path.isdir(results_dir):
 	os.mkdir(results_dir)
 
 print("starting experiments")
+overall_start_time = time.time()
 try:
 	with open(experiment_results_filename + "_log", "w") as f_log:
 		f_log.write("[\n")
@@ -174,7 +175,8 @@ try:
 					print(f"==========>>>>> {cycles} (exp time: {time_diff:.2f}s)")
 				finally:
 					# store inputs and cycle count
-					experiment_result = (inputs_s, cycles, f"{time_diff:.2f}")
+					time_diff_s = None if time_diff == None else f"{time_diff:.2f}"
+					experiment_result = (inputs_s, cycles, time_diff_s)
 					experiment_results.append(experiment_result)
 					f_log.write(json.dumps(experiment_result))
 					f_log.write(",\n")
@@ -186,6 +188,10 @@ except KeyboardInterrupt:
 finally:
 	with open(experiment_results_filename, "w") as f:
 		json.dump(experiment_results, f)
+	time_diff = time.time() - overall_start_time
+	print(40 * "=")
+	print(f"    overall benchmarking time: {time_diff:.2f}s")
+	print(40 * "=")
 
 print("terminating.")
 
