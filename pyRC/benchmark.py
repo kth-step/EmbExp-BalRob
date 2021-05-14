@@ -8,6 +8,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 import threading
 import time
 import struct
+import random
 
 import balrobcomm
 import balrob
@@ -25,21 +26,13 @@ def wait_until_ready(bc):
 			break
 		print(f"inf - {m_}")
 
-	time.sleep(1)
+	time.sleep(0.1)
 	assert(bc.recv_available() == 0)
 
 def send_inputs(bc, inputs):
-	keylist = [
-		"kp", "ki", "kd", "angleLast", "errorLast", "errorSum",
-		"msg_flag", "motor_on", "angleTarget", "pid_counter",
-		"accX", "accZ", "gyrY"
-	]
-	structpattern = "<ffffffBBxxfLhhhxx"
-	s = list(map(lambda k: inputs[k], keylist))
-	m = struct.pack(structpattern, *s)
-	bc.send_message((101, m))
+	bc.send_message((101, inputs))
 
-	time.sleep(1)
+	time.sleep(0.1)
 	print(bc.recv_available())
 	assert(bc.recv_available() == 1)
 
@@ -72,9 +65,9 @@ def execute_experiment(bc, inputs):
 
 	print("running experiment")
 	cycles = run_experiment(bc)
-	print(cycles)
+	return cycles
 
-fixed_inputs1 = {
+fixed_inputs_dict_1 = {
 	"kp"          : 0.0,
 	"ki"          : 0.0,
 	"kd"          : 0.0,
@@ -90,7 +83,7 @@ fixed_inputs1 = {
 	"gyrY"        : 0
 }
 
-fixed_inputs2 = {
+fixed_inputs_dict_2 = {
 	"kp"          : 0.0,
 	"ki"          : 0.0,
 	"kd"          : 0.0,
@@ -106,12 +99,34 @@ fixed_inputs2 = {
 	"gyrY"        : -2048
 }
 
+keylist = [
+	"kp", "ki", "kd", "angleLast", "errorLast", "errorSum",
+	"msg_flag", "motor_on", "angleTarget", "pid_counter",
+	"accX", "accZ", "gyrY"
+]
+structpattern = "<ffffffBBxxfLhhhxx"
+def dict_to_inputs(d):
+	s = list(map(lambda k: d[k], keylist))
+	inputs = struct.pack(structpattern, *s)
+	return inputs
+def inputs_to_dict(inputs):
+	s = struct.unpack(structpattern, inputs)
+	assert(len(s) == len(keylist))
+	d = dict(list(zip(keylist, s)))
+	return d
+
+inputs_bin_len = len(dict_to_inputs(fixed_inputs_dict_1))
+def gen_random_inputs_binary():
+	return bytes(random.getrandbits(8) for _ in range(inputs_bin_len))
+
 try:
 	with balrobcomm.BalrobComm() as bc:
 		# loop through several inputs
 		while True:
-			inputs = fixed_inputs2
-			execute_experiment(bc, inputs)
+			#inputs = dict_to_inputs(fixed_inputs_dict_2)
+			inputs = gen_random_inputs_binary()
+			cycles = execute_experiment(bc, inputs)
+			print(f"==========>>>>> {cycles}")
 
 except KeyboardInterrupt:
 	pass
