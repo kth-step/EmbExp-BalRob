@@ -2,8 +2,8 @@ import struct
 
 
 
-def handle_message(bc, handler):
-	(ch, m) = bc.recv_message()
+def handle_message(bc, handler, timeout = None):
+	(ch, m) = bc.recv_message(timeout)
 	handler(ch, m)
 
 def parse_pid_pack(m):

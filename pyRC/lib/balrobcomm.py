@@ -115,8 +115,8 @@ class CommState:
 		self.f_thread_rec_ok = False
 		self.f_queue = queue.Queue()
 
-	def get_element(self):
-		return self.f_queue.get(timeout=2)
+	def get_element(self, timeout = 2):
+		return self.f_queue.get(timeout=timeout)
 
 	def get_num_available(self):
 		return self.f_queue.qsize()
@@ -145,9 +145,9 @@ class BalrobComm:
 	def __exit__(self, exc_type, exc_val, exc_tb):
 		self.comm.__exit__(exc_type, exc_val, exc_tb)
 
-	def recv_message(self):
+	def recv_message(self, timeout = 2):
 		self.state.check_thread_rec()
-		return self.state.get_element()
+		return self.state.get_element(timeout)
 
 	def recv_available(self):
 		self.state.check_thread_rec()
