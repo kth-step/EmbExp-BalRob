@@ -28,9 +28,15 @@ LINKERFILE    = lpc11c24_flash.ld
 
 # compiler flags
 # ---------------------------------
+ifeq ("$(OPTIMIZED_MODE)", "")
+  OPTIMIZATION_FLAG = -O0
+else
+  OPTIMIZATION_FLAG = -O3
+endif
+
 SFLAGS_EXTRA = -mcpu=cortex-m0 -mthumb
 # -O3 / -O0
-CFLAGS_EXTRA = -O3 -g3 -specs=nosys.specs -DUSE_OLD_STYLE_DATA_BSS_INIT -ffunction-sections -fdata-sections -mcpu=cortex-m0 -mthumb -fno-common -D__USE_CMSIS=CMSIS_CORE_LPC11xx
+CFLAGS_EXTRA = ${OPTIMIZATION_FLAG} -g3 -specs=nosys.specs -DUSE_OLD_STYLE_DATA_BSS_INIT -ffunction-sections -fdata-sections -mcpu=cortex-m0 -mthumb -fno-common -D__USE_CMSIS=CMSIS_CORE_LPC11xx
 LDFLAGS_POST = -L$(ARMSYS) -L$(ARMLIB) -lgcc
 
 INCFLAGS     = $(foreach d,$(CODE_DIRS),-I$d/inc)
