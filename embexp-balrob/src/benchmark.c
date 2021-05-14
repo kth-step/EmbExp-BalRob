@@ -39,15 +39,106 @@ uint32_t benchmark_measure(void (*fun_ptr)(uint8_t, uint32_t), uint8_t __noyield
 
   uint32_t cycles = _benchmark_timer_measure();
 
-  if (cycles > 0xFFFFFF) {
+  if (cycles > 0xFFFF) {
     out_error("unexpected cycle measurement");
-    while(1);
+    while(1); // out_error already blocks, but here we want to be sure
   }
 
   return cycles;
 }
 
 
+//#define USE_FIXED_BENCHMARK_INPUTS
+// retrieve inputs from uart and set them
+void set_inputs() {
+#ifdef USE_FIXED_BENCHMARK_INPUTS
+  //out_info("preparing");
+  imu_handler_pid_set_state_PID(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+  imu_handler_pid_set_state_INPUT(1, 0, 12.0f, 128);
+  imu_handler_pid_set_state_IMU(1024, -1500, -2048);
+#else
+  out_info("wait4inputs");
+  while (1) {
+    int in_ch;
+
+    // handle io
+    while ((in_ch = in_handle()) == -3);
+
+    if (in_ch == 100) {
+      out_info("ok100");
+      break;
+    }
+
+    switch (in_ch) {
+      case -1:
+        // nothing available
+        break;
+      case -2:
+        // start sync error
+        break;
+      case 101:
+        if (in_data_len != (4*(6) + 1*(2) + 1*(2) + 4*(2) + 2*(3) + 1*(2))) {
+          out_info("nok101");
+          break;
+        }
+
+        uint32_t buf_ptr = (uint32_t)in_buffer + 4;
+        float __kp = *((float*)(buf_ptr));
+        buf_ptr += sizeof(float);
+        float __ki = *((float*)(buf_ptr));
+        buf_ptr += sizeof(float);
+        float __kd = *((float*)(buf_ptr));
+        buf_ptr += sizeof(float);
+        float __angleLast = *((float*)(buf_ptr));
+        buf_ptr += sizeof(float);
+        float __errorLast = *((float*)(buf_ptr));
+        buf_ptr += sizeof(float);
+        float __errorSum  = *((float*)(buf_ptr));
+        buf_ptr += sizeof(float);
+        imu_handler_pid_set_state_PID(__kp, __ki, __kd, __angleLast, __errorLast, __errorSum);
+
+        uint8_t __msg_flag = *((uint8_t*)(buf_ptr));
+        buf_ptr += sizeof(uint8_t);
+        uint8_t __motor_on = *((uint8_t*)(buf_ptr));
+        buf_ptr += sizeof(uint8_t);
+	// 2 byted padding
+        buf_ptr += 2;
+        float __angleTarget    = *((float*)(buf_ptr));
+        buf_ptr += sizeof(float);
+        uint32_t __pid_counter = *((uint32_t*)(buf_ptr));
+        buf_ptr += sizeof(uint32_t);
+        imu_handler_pid_set_state_INPUT(__msg_flag, __motor_on, __angleTarget, __pid_counter);
+
+        int16_t __accX = *((int16_t*)(buf_ptr));
+        buf_ptr += sizeof(int16_t);
+        int16_t __accZ = *((int16_t*)(buf_ptr));
+        buf_ptr += sizeof(int16_t);
+        int16_t __gyrY = *((int16_t*)(buf_ptr));
+        buf_ptr += sizeof(int16_t);
+        imu_handler_pid_set_state_IMU(__accX, __accZ, __gyrY);
+
+        out_info("ok101");
+        break;
+      default:
+        if (in_ch >= 0) {
+          // unknown channel
+          out_info_inthex("in_ch", in_ch);
+          out_info("unknown channel");
+          //out_error("unknown channel");
+        } else {
+          // some error
+          out_info_inthex("in_ch", in_ch);
+          out_info("unknown error");
+          //out_error("unknown error");
+        }
+        break;
+    }
+  }
+#endif
+}
+
+
+// one benchmark round (input-run-output)
 void benchmark_run() {
   out_info("\r\na benchmark");
 
@@ -58,10 +149,9 @@ void benchmark_run() {
   uint32_t cycles_bl = benchmark_measure(_imu_handler_pid_entry_dummy, 0, 0);
   out_info_inthex("cyclesbl", cycles_bl);
 
-  //out_info("preparing");
-  imu_handler_pid_set_state_PID(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-  imu_handler_pid_set_state_INPUT(1, 0, 12.0f, 128);
-  imu_handler_pid_set_state_IMU(1024, -1500, -2048);
+  // set the inputs (fixed or after retrieving them from the uart)
+  //out_info_inthex("szfl", sizeof(float));
+  set_inputs();
 
   //out_info("running");
   uint32_t cycles = benchmark_measure(imu_handler_pid_entry, 0, 0);
