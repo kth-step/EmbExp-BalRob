@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 
+
+import sys
 import os
+sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
+
 import json
 
-results_dir = "experiment_results"
+import benchmarklib
+
+results_dir = "experiment_results/binrand"
 
 experiment_results = []
 for filename in os.listdir(results_dir):
@@ -21,7 +27,13 @@ print(f"found {len(experiment_results)} experiment results")
 
 experiment_results_filtered = [x for x in experiment_results if x[1] != None]
 
-maxval = max(list(map(lambda x: x[1], experiment_results_filtered)))
+print(f"found {len(experiment_results_filtered)} experiment results that didn't fail")
 
+maxval = max(list(map(lambda x: x[1], experiment_results_filtered)))
 print(maxval)
+
+exps_with_max = list(filter(lambda x: x[1] == maxval, experiment_results_filtered))
+exps_convertd = list(map(lambda x: benchmarklib.inputs_to_dict(benchmarklib.base64_to_bytes(x[0])), exps_with_max))
+
+print(exps_convertd)
 
