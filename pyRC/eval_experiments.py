@@ -33,7 +33,14 @@ maxval = max(list(map(lambda x: x[1], experiment_results_filtered)))
 print(maxval)
 
 exps_with_max = list(filter(lambda x: x[1] == maxval, experiment_results_filtered))
-exps_convertd = list(map(lambda x: benchmarklib.inputs_to_dict(benchmarklib.base64_to_bytes(x[0])), exps_with_max))
+
+# visualize inputs
+def convert_inputs(x):
+	try:
+		return benchmarklib.inputs_to_dict(benchmarklib.base64_to_bytes(x[0]))
+	except:
+		return x
+exps_convertd = list(map(convert_inputs, exps_with_max))
 
 print(exps_convertd)
 
