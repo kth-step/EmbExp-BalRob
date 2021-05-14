@@ -3,6 +3,7 @@ import queue
 
 import serial
 import socket
+import sys
 
 import struct
 import time
