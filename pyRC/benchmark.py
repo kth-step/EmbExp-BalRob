@@ -61,14 +61,14 @@ def run_experiment(bc):
 	return cycles
 
 def execute_experiment(bc, inputs):
-	#print("receiving messages until ready for inputs")
-	wait_until_ready(bc)
-
 	#print("sending inputs")
 	send_inputs(bc, inputs)
 
 	#print("running experiment")
 	cycles = run_experiment(bc)
+
+	#print("receiving messages until ready for inputs")
+	wait_until_ready(bc)
 	return cycles
 
 fixed_inputs_dict_1 = {
