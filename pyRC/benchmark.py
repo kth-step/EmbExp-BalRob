@@ -21,9 +21,9 @@ import benchmarklib
 print("generating inputs")
 special_inputs = benchmarklib.dict_to_inputs(benchmarklib.fixed_inputs_dict_5)
 num_exps = 1000
-#inputs_list = [benchmarklib.gen_random_inputs_binary() for _ in range(num_exps)]
+inputs_list = [benchmarklib.gen_random_inputs_binary() for _ in range(num_exps)]
 #inputs_list = [benchmarklib.gen_random_inputs_distribution() for _ in range(num_exps)]
-inputs_list = [special_inputs]
+#inputs_list = [special_inputs]
 #inputs_list = [benchmarklib.gen_random_input_binary_k_variation(special_inputs) for _ in range(num_exps)]
 
 experiment_results = []
@@ -33,7 +33,7 @@ experiment_results_filename = f"{results_dir}/{now_str}.json"
 if not os.path.isdir(results_dir):
 	os.mkdir(results_dir)
 
-if True:
+if False:
 	overall_start_time = time.time()
 	max_exp = (0, None)
 	experiment_results = []
