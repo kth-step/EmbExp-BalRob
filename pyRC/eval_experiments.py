@@ -9,7 +9,7 @@ import json
 
 import benchmarklib
 
-results_dir = "experiment_results/binrand"
+results_dir = "experiment_results"#/binrand"
 
 experiment_results = []
 for filename in os.listdir(results_dir):
