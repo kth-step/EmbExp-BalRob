@@ -26,6 +26,9 @@ void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime);
 float __aeabi_fadd(float a, float b);
 float __aeabi_fdiv(float a, float b);
 void motor_set(int32_t l, int32_t r);
+int32_t motor_prep_input(int32_t r);
+void motor_set_l(int32_t l);
+void motor_set_r(int32_t r);
 
 // from asm code
 void _benchmark_timer_reset();
@@ -74,6 +77,40 @@ uint32_t benchmark_measure3(void (*fun_ptr)(int32_t, int32_t), int32_t a, int32_
 
   _benchmark_timer_reset();
   fun_ptr(a, b);
+
+  uint32_t cycles = _benchmark_timer_measure();
+
+  if (cycles > 0xFFFF) {
+    out_error("unexpected cycle measurement");
+    while(1); // out_error already blocks, but here we want to be sure
+  }
+
+  return cycles;
+}
+// quick and dirty adaption of "composite measurement primitive"
+uint32_t benchmark_measure4(void (*fun_ptr)(int32_t), int32_t a) {
+  // TODO: WHHHYYYYYYYYYYYYYYYYYYY?
+  fun_ptr = (void (*)(int32_t))(((uint32_t)fun_ptr) | 0x1);
+
+  _benchmark_timer_reset();
+  fun_ptr(a);
+
+  uint32_t cycles = _benchmark_timer_measure();
+
+  if (cycles > 0xFFFF) {
+    out_error("unexpected cycle measurement");
+    while(1); // out_error already blocks, but here we want to be sure
+  }
+
+  return cycles;
+}
+// quick and dirty adaption of "composite measurement primitive"
+uint32_t benchmark_measure5(int32_t (*fun_ptr)(int32_t), int32_t a) {
+  // TODO: WHHHYYYYYYYYYYYYYYYYYYY?
+  fun_ptr = (int32_t (*)(int32_t))(((uint32_t)fun_ptr) | 0x1);
+
+  _benchmark_timer_reset();
+  fun_ptr(a);
 
   uint32_t cycles = _benchmark_timer_measure();
 
@@ -218,6 +255,39 @@ void set_inputs() {
         out_info_inthex("cyclesres", cycles - cycles_bl);
         out_info("ok105");
         break;
+
+      case 106:
+        if (in_data_len != (4*(1))) {
+          out_info("nok106");
+          break;
+        }
+
+        buf_ptr = (uint32_t)in_buffer + 4;
+        c = *((int32_t*)(buf_ptr));
+        buf_ptr += sizeof(int32_t);
+
+        cycles_bl = benchmark_measure4((void (*)(int32_t))_imu_handler_pid_entry_dummy, 0);
+        cycles = benchmark_measure4(motor_set_l, c);
+        out_info_inthex("cyclesres", cycles - cycles_bl);
+        out_info("ok106");
+        break;
+
+      case 107:
+        if (in_data_len != (4*(1))) {
+          out_info("nok107");
+          break;
+        }
+
+        buf_ptr = (uint32_t)in_buffer + 4;
+        c = *((int32_t*)(buf_ptr));
+        buf_ptr += sizeof(int32_t);
+
+        cycles_bl = benchmark_measure5((int32_t (*)(int32_t))_imu_handler_pid_entry_dummy, 0);
+        cycles = benchmark_measure5(motor_prep_input, c);
+        out_info_inthex("cyclesres", cycles - cycles_bl);
+        out_info("ok107");
+        break;
+
 
       default:
         if (in_ch >= 0) {

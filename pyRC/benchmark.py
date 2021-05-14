@@ -21,9 +21,9 @@ import benchmarklib
 print("generating inputs")
 special_inputs = benchmarklib.dict_to_inputs(benchmarklib.fixed_inputs_dict_5)
 num_exps = 1000
-inputs_list = [benchmarklib.gen_random_inputs_binary() for _ in range(num_exps)]
+#inputs_list = [benchmarklib.gen_random_inputs_binary() for _ in range(num_exps)]
 #inputs_list = [benchmarklib.gen_random_inputs_distribution() for _ in range(num_exps)]
-#inputs_list = [special_inputs]
+inputs_list = [special_inputs]
 #inputs_list = [benchmarklib.gen_random_input_binary_k_variation(special_inputs) for _ in range(num_exps)]
 
 experiment_results = []
@@ -33,7 +33,7 @@ experiment_results_filename = f"{results_dir}/{now_str}.json"
 if not os.path.isdir(results_dir):
 	os.mkdir(results_dir)
 
-if False:
+if True:
 	overall_start_time = time.time()
 	max_exp = (0, None)
 	experiment_results = []
@@ -45,12 +45,15 @@ if False:
 				#inputs_s = (a, b)
 				c = benchmarklib.gen_rand_int32()
 				d = benchmarklib.gen_rand_int32()
-				inputs_s = (c, d)
+				#inputs_s = (c, d)
+				inputs_s = (c,)
 				cycles = None
 				try:
 					#cycles = benchmarklib.execute_experiment_fadd(bc, *inputs_s)
 					#cycles = benchmarklib.execute_experiment_fdiv(bc, *inputs_s)
-					cycles = benchmarklib.execute_experiment_motor_set(bc, *inputs_s)
+					#cycles = benchmarklib.execute_experiment_motor_set(bc, *inputs_s)
+					#cycles = benchmarklib.execute_experiment_motor_set_l(bc, *inputs_s)
+					cycles = benchmarklib.execute_experiment_motor_prep_input(bc, *inputs_s)
 					print(f"==========>>>>> {cycles}")
 					if cycles > max_exp[0]:
 						max_exp = (cycles, inputs_s)

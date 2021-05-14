@@ -108,6 +108,52 @@ def run_experiment_motor_set(bc, a, b):
 
 	return cycles
 
+def run_experiment_motor_set_l(bc, a):
+	assert(type(a) == int)
+
+	m = struct.pack("<l", a)
+
+	bc.send_message((106, m))
+	# expect result and then ok(106)
+
+	#print("collecting cycles results")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"cyclesres")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	cycles = int(m.decode(), 16)
+
+	#print("ok(106)")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"ok106")
+
+	return cycles
+
+def run_experiment_motor_prep_input(bc, a):
+	assert(type(a) == int)
+
+	m = struct.pack("<l", a)
+
+	bc.send_message((107, m))
+	# expect result and then ok(107)
+
+	#print("collecting cycles results")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"cyclesres")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	cycles = int(m.decode(), 16)
+
+	#print("ok(107)")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"ok107")
+
+	return cycles
+
 # composition of elementary steps
 def execute_experiment(bc, inputs):
 	#print("sending inputs")
@@ -144,6 +190,18 @@ def execute_experiment_fdiv(bc, a, b):
 def execute_experiment_motor_set(bc, a, b):
 	#print("running experiment")
 	cycles = run_experiment_motor_set(bc, a, b)
+	return cycles
+
+# composition of elementary steps (motor_set_l)
+def execute_experiment_motor_set_l(bc, a):
+	#print("running experiment")
+	cycles = run_experiment_motor_set_l(bc, a)
+	return cycles
+
+# composition of elementary steps (motor_prep_input)
+def execute_experiment_motor_prep_input(bc, a):
+	#print("running experiment")
+	cycles = run_experiment_motor_prep_input(bc, a)
 	return cycles
 
 
