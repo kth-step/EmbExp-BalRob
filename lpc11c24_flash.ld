@@ -17,6 +17,9 @@ SECTIONS
                 . = 0x1700;
                 EXCLUDE_FILE (*/pid.o */motor.o */motor_ct.o) *(.text*);
                 *(.keepinflash*);
+                */pid.o (.text*)
+                */motor.o (.text*)
+                */motor_ct.o (.text*)
                 *(.rodata*);
                 . = ALIGN(4);
         } >flash
@@ -26,9 +29,6 @@ SECTIONS
         .reloadtext : 
         {
                 . = 0x0 + (DEFINED(LOADATSLOT2) ? 0xa00 : 0x0);
-                */pid.o (.text*)
-                */motor.o (.text*)
-                */motor_ct.o (.text*)
                 . = 0xa00 + (DEFINED(LOADATSLOT2) ? 0xa00 : 0x0);
         } >ram AT>flash
 

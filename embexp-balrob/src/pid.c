@@ -218,6 +218,7 @@ void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
 	//TIMER_WAIT_US(2300);
 
 	// prepare message
+/*
 	pid_msg_write((pid_msg_t){ .pid_sampletime = pid_sampletime,
 							   .pid_handlertime = pid_handlertime,
 							   .pid_counter = pid_counter,
@@ -228,6 +229,7 @@ void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
 							   .errorSum = errorSumNew,
 
 							   .last_noyield = noyield});
+*/
 }
 
 
