@@ -13,29 +13,23 @@ SECTIONS
                 KEEP (*(.isr_vector));
                 KEEP (*(.after_vectors));
                 . = 0x200;
-                *libgcc.a:*(*); /* .text* .text.* */
-                . = 0x1700;
-                *(.text*);
-                *(.rodata*);
+                /*. = 0x1700; */
+		EXCLUDE_FILE (*/pid.o */libgcc.a) *(.text*);
+                *(.keepinflash*);
                 . = ALIGN(4);
         } >flash
         
 	/*. = ORIGIN(ram);*/
-	/* LOADATSLOT2 = 1; */
         .reloadtext : 
         {
-                . = 0x0 + (DEFINED(LOADATSLOT2) ? 0xa00 : 0x0);
-                . = 0xa00 + (DEFINED(LOADATSLOT2) ? 0xa00 : 0x0);
-        } >flash /*>ram AT>flash*/
+                *libgcc.a:*(*); /* .text* .text.* */
+                */pid.o (.text*)
+                *(.rodata*);
+        } >ram AT>flash
 
         PROVIDE(_fromreloadtext = LOADADDR(.reloadtext));
         PROVIDE(_reloadtext = ADDR(.reloadtext));
-        PROVIDE(_ereloadtext = ADDR(.reloadtext) + 0);/*SIZEOF(.reloadtext));*/
-
-        .bufferspace : 
-        {
-                . = (DEFINED(LOADATSLOT2) ? 0x0 : 0xa00);
-        } >ram
+        PROVIDE(_ereloadtext = ADDR(.reloadtext) + SIZEOF(.reloadtext));
 
         .data : 
         {

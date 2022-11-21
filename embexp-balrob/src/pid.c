@@ -122,6 +122,10 @@ static float atan2f_own(float y, float x) {
 void imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampletime);
 void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime);
 
+volatile float angle;
+volatile float error;
+volatile float errorDiff;
+volatile float errorSumNew;
 void (* volatile imu_handler_pid_entry_ptr)(uint8_t,uint32_t) = &imu_handler_pid_entry;
 volatile uint8_t imu_handler_pid_entry_ptr_valid = 1;
 void KEEPINFLASH imu_handler(uint8_t noyield) {
@@ -140,24 +144,41 @@ void KEEPINFLASH imu_handler(uint8_t noyield) {
 	if (imu_handler_pid_entry_ptr != 0) {
 		(*imu_handler_pid_entry_ptr_internal)(noyield, pid_sampletime);
 	}
-}
 
-void KEEPINFLASH imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampletime) {
-	motor_set_f(0, 0);
+	// output to motor
+	if (motor_on)
+		motor_set_f(motorPower, motorPower);
+	else
+		motor_set_f(0, 0);
+
+	// finalize the handler with counter maintenance and a time measurement
 	pid_counter++;
+	uint32_t pid_handlertime = timer_read();
+
+	//TIMER_WAIT_US(2300);
+
+	// prepare message
 	pid_msg_write((pid_msg_t){ .pid_sampletime = pid_sampletime,
-							   .pid_handlertime = 0,
+							   .pid_handlertime = pid_handlertime,
 							   .pid_counter = pid_counter,
 
-							   .angle = 0,
-							   .error = 0,
-							   .errorDiff = 0,
-							   .errorSum = 0,
+							   .angle = angle,
+							   .error = error,
+							   .errorDiff = errorDiff,
+							   .errorSum = errorSumNew,
 
 							   .last_noyield = noyield});
 }
 
-void imu_handler_pid_set_state_PID(float __kp, float __ki, float __kd, float __angleLast, float __errorLast, float __errorSum) {
+void KEEPINFLASH imu_handler_pid_entry_empty(uint8_t noyield, uint32_t pid_sampletime) {
+	motorPower = 0;
+	angle = 0;
+	error = 0;
+	errorDiff = 0;
+	errorSum = 0;
+}
+
+void KEEPINFLASH imu_handler_pid_set_state_PID(float __kp, float __ki, float __kd, float __angleLast, float __errorLast, float __errorSum) {
   kp = __kp;
   ki = __ki;
   kd = __kd;
@@ -166,14 +187,14 @@ void imu_handler_pid_set_state_PID(float __kp, float __ki, float __kd, float __a
   errorLast = __errorLast;
   errorSum  = __errorSum;
 }
-void imu_handler_pid_set_state_INPUT(uint8_t __msg_flag, uint8_t __motor_on, float __angleTarget, uint32_t __pid_counter) {
+void KEEPINFLASH imu_handler_pid_set_state_INPUT(uint8_t __msg_flag, uint8_t __motor_on, float __angleTarget, uint32_t __pid_counter) {
   msg_flag = __msg_flag;
   motor_on = __motor_on;
 
   angleTarget = __angleTarget;
   pid_counter = __pid_counter;
 }
-void imu_handler_pid_set_state_IMU(int16_t __accX, int16_t __accZ, int16_t __gyrY) {
+void KEEPINFLASH imu_handler_pid_set_state_IMU(int16_t __accX, int16_t __accZ, int16_t __gyrY) {
   imu_values[0] = __accX;
   imu_values[2] = __accZ;
 
@@ -203,14 +224,14 @@ void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
 	gyrAngle_ += gyrAngleDiff;
 #endif
 
-	float angle = (ALPHA * (angleLast + gyrAngleDiff)) + ((1-ALPHA) * accAngle);
+	/*float*/ angle = (ALPHA * (angleLast + gyrAngleDiff)) + ((1-ALPHA) * accAngle);
 	angleLast = angle;
 
 	// compute error and its derivative and integral
-	float error = angle - (angleTarget + angle_offset);
-	float errorDiff = error - errorLast;
+	/*float*/ error = angle - (angleTarget + angle_offset);
+	/*float*/ errorDiff = error - errorLast;
 	errorLast = error;
-	float errorSumNew = errorSum + (error);
+	/*float*/ errorSumNew = errorSum + (error);
 	errorSum = (!(errorSumNew < ERROR_SUM_LIMIT)) ? ERROR_SUM_LIMIT : (errorSumNew < -ERROR_SUM_LIMIT ? -ERROR_SUM_LIMIT : errorSumNew);
 
 	// compute output signal
@@ -225,32 +246,7 @@ void imu_handler_pid_entry(uint8_t noyield, uint32_t pid_sampletime) {
     #define KD_FACTOR 1
   #endif
 #endif
-	float motorPowerNew = (kp * error) + (ki * errorSum * SAMPLE_TIME) + (kd * KD_FACTOR * errorDiff / SAMPLE_TIME);
-	motorPower = motorPowerNew;
-
-	// output to motor
-	if (motor_on)
-		motor_set_f(motorPowerNew, motorPowerNew);
-	else
-		motor_set_f(0, 0);
-
-	// finalize the handler with counter maintenance and a time measurement
-	pid_counter++;
-	uint32_t pid_handlertime = timer_read();
-
-	//TIMER_WAIT_US(2300);
-
-	// prepare message
-	pid_msg_write((pid_msg_t){ .pid_sampletime = pid_sampletime,
-							   .pid_handlertime = pid_handlertime,
-							   .pid_counter = pid_counter,
-
-							   .angle = angle,
-							   .error = error,
-							   .errorDiff = errorDiff,
-							   .errorSum = errorSumNew,
-
-							   .last_noyield = noyield});
+	motorPower = (kp * error) + (ki * errorSum * SAMPLE_TIME) + (kd * KD_FACTOR * errorDiff / SAMPLE_TIME);
 }
 
 
