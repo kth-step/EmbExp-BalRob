@@ -33,23 +33,23 @@ experiment_results_filename = f"{results_dir}/{now_str}.json"
 if not os.path.isdir(results_dir):
 	os.mkdir(results_dir)
 
-if False:
+if True:
 	overall_start_time = time.time()
 	max_exp = (0, None)
 	experiment_results = []
 	try:
 		with balrobcomm.BalrobComm() as bc:
 			for _ in range(num_exps):
-				#a = benchmarklib.gen_rand_float()
-				#b = benchmarklib.gen_rand_float()
-				#inputs_s = (a, b)
-				c = benchmarklib.gen_rand_int32()
-				d = benchmarklib.gen_rand_int32()
-				inputs_s = (c, d)
+				a = benchmarklib.gen_rand_float()
+				b = benchmarklib.gen_rand_float()
+				inputs_s = (a, b)
+				#c = benchmarklib.gen_rand_int32()
+				#d = benchmarklib.gen_rand_int32()
+				#inputs_s = (c, d)
 				#inputs_s = (c,)
 				cycles = None
 				try:
-					#cycles = benchmarklib.execute_experiment_fadd(bc, *inputs_s)
+					cycles = benchmarklib.execute_experiment_fadd(bc, *inputs_s)
 					#cycles = benchmarklib.execute_experiment_fdiv(bc, *inputs_s)
 					#cycles = benchmarklib.execute_experiment_motor_set(bc, *inputs_s)
 					#cycles = benchmarklib.execute_experiment_motor_set_l(bc, *inputs_s)

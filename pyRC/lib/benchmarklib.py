@@ -82,6 +82,7 @@ def run_experiment_f2(bc, i, a, b):
 	assert(ch == 0)
 	assert(m == f"ok{102+i}".encode("ascii"))
 
+	print((cycles, res))
 	return (cycles, res)
 
 def run_experiment_motor_set(bc, a, b):
