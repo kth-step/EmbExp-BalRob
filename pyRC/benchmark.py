@@ -20,7 +20,7 @@ import benchmarklib
 # ===============================================================
 print("generating inputs")
 special_inputs = benchmarklib.dict_to_inputs(benchmarklib.fixed_inputs_dict_5)
-num_exps = 1000
+num_exps = 1
 inputs_list = [benchmarklib.gen_random_inputs_binary() for _ in range(num_exps)]
 #inputs_list = [benchmarklib.gen_random_inputs_distribution() for _ in range(num_exps)]
 #inputs_list = [special_inputs]
@@ -33,7 +33,7 @@ experiment_results_filename = f"{results_dir}/{now_str}.json"
 if not os.path.isdir(results_dir):
 	os.mkdir(results_dir)
 
-if True:
+if False:
 	overall_start_time = time.time()
 	max_exp = (0, None)
 	experiment_results = []
@@ -84,8 +84,8 @@ try:
 			for inputs in inputs_list:
 				#inputs = dict_to_inputs(fixed_inputs_dict_2)
 				#inputs = gen_random_inputs_binary()
-				inputs = benchmarklib.set_inputs_msg_flag(inputs)
-				inputs = benchmarklib.set_inputs_motor_on(inputs)
+				#inputs = benchmarklib.set_inputs_msg_flag(inputs)
+				#inputs = benchmarklib.set_inputs_motor_on(inputs)
 				#print(inputs_to_dict(inputs)["motor_on"])
 
 				# prepare inputs for storing
