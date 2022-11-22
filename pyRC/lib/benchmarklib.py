@@ -27,6 +27,7 @@ def send_inputs(bc, inputs):
 	bc.send_message((101, inputs))
 
 	time.sleep(0.1)
+	time.sleep(0.4) # flash/remote bonus
 	#print(bc.recv_available())
 	assert(bc.recv_available() == 1)
 
