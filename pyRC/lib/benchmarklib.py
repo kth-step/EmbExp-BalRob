@@ -26,9 +26,12 @@ def wait_until_ready(bc):
 def send_inputs(bc, inputs):
 	bc.send_message((101, inputs))
 
-	time.sleep(0.1)
-	time.sleep(0.4) # flash/remote bonus
-	#print(bc.recv_available())
+	for _ in range(100):
+		time.sleep(0.1)
+		#time.sleep(0.4) # flash/remote bonus
+		#print(bc.recv_available())
+		if bc.recv_available() > 0:
+			break
 	assert(bc.recv_available() == 1)
 
 	(ch, m) = bc.recv_message()
