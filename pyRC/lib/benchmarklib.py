@@ -159,6 +159,79 @@ def run_experiment_motor_prep_input(bc, a):
 
 	return cycles
 
+def run_experiment__alignmenttestfun(bc, a, b):
+	assert(type(a) == int)
+	assert(type(b) == int)
+	a = 0
+	b = random.randint(0, 1)
+
+	m = struct.pack("<LL", a, b)
+
+	bc.send_message((108, m))
+	# expect result and then ok(108)
+
+	#print("collecting cycles results")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"cyclesres")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	cycles = int(m.decode(), 16)
+
+	#print("ok(107)")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"ok108")
+
+	return cycles
+
+def run_experiment__reffunc_test4(bc):
+	m = b""
+
+	bc.send_message((109, m))
+	# expect result and then ok(109)
+
+	#print("collecting cycles results")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"cyclesres")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	cycles = int(m.decode(), 16)
+
+	#print("ok(107)")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"ok109")
+
+	return cycles
+
+def run_experiment__mymodexp(bc, a, b, c, d):
+	assert(type(a) == int)
+	assert(type(b) == int)
+	assert(type(c) == int)
+	assert(type(d) == int)
+
+	m = struct.pack("<LLLL", a, b, c, d)
+
+	bc.send_message((110, m))
+	# expect result and then ok(110)
+
+	#print("collecting cycles results")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"cyclesres")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	cycles = int(m.decode(), 16)
+
+	#print("ok(107)")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"ok110")
+
+	return cycles
+
 # composition of elementary steps
 def execute_experiment(bc, inputs):
 	#print("sending inputs")
@@ -274,6 +347,10 @@ def gen_rand_float():
 
 def gen_rand_int32():
 	v = random.randint(-2147483648, 2147483647)
+	return v
+
+def gen_rand_uint32():
+	v = random.randint(0, 4294967295)
 	return v
 
 

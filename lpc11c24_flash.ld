@@ -23,7 +23,7 @@ SECTIONS
         .reloadtext : 
         {
                 *libgcc.a:*(*); /* .text* .text.* */
-                */pid.o (.text*)
+                */otherbenchs.o (.text*)
                 *(.rodata*);
         } >ram AT>flash
 
