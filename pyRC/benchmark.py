@@ -49,9 +49,9 @@ if True:
 				c = benchmarklib.gen_rand_uint32()
 				d = benchmarklib.gen_rand_uint32()
 				#inputs_s = (c, d)
-				e = benchmarklib.gen_rand_uint32()
-				f = benchmarklib.gen_rand_uint32()
-				inputs_s = (c, d, e, f)
+				#e = benchmarklib.gen_rand_uint32()
+				#f = benchmarklib.gen_rand_uint32()
+				#inputs_s = (c, d, e, f)
 				#inputs_s = (c,)
 				cycles = None
 				try:
@@ -62,7 +62,9 @@ if True:
 					#cycles = benchmarklib.execute_experiment_motor_prep_input(bc, *inputs_s)
 					#cycles = benchmarklib.run_experiment__reffunc_test4(bc)
 					#cycles = benchmarklib.run_experiment__alignmenttestfun(bc, *inputs_s)
-					cycles = benchmarklib.run_experiment__mymodexp(bc, *inputs_s)
+					#cycles = benchmarklib.run_experiment__mymodexp(bc, *inputs_s)
+					inputs_s = ((2 ** 32) - 1, 1)
+					cycles = benchmarklib.run_experiment_uidivmod(bc, *inputs_s)
 					print(f"==========>>>>> {cycles}")
 					if cycles > max_exp[0]:
 						max_exp = (cycles, inputs_s)

@@ -178,7 +178,7 @@ def run_experiment__alignmenttestfun(bc, a, b):
 	assert(ch == 0)
 	cycles = int(m.decode(), 16)
 
-	#print("ok(107)")
+	#print("ok(108)")
 	(ch, m) = bc.recv_message()
 	assert(ch == 0)
 	assert(m == b"ok108")
@@ -199,7 +199,7 @@ def run_experiment__reffunc_test4(bc):
 	assert(ch == 0)
 	cycles = int(m.decode(), 16)
 
-	#print("ok(107)")
+	#print("ok(109)")
 	(ch, m) = bc.recv_message()
 	assert(ch == 0)
 	assert(m == b"ok109")
@@ -225,12 +225,38 @@ def run_experiment__mymodexp(bc, a, b, c, d):
 	assert(ch == 0)
 	cycles = int(m.decode(), 16)
 
-	#print("ok(107)")
+	#print("ok(110)")
 	(ch, m) = bc.recv_message()
 	assert(ch == 0)
 	assert(m == b"ok110")
 
 	return cycles
+
+def run_experiment_uidivmod(bc, a, b):
+	assert(type(a) == int)
+	assert(type(b) == int)
+
+	m = struct.pack("<LL", a, b)
+
+	bc.send_message((111, m))
+	# expect result and then ok(111)
+
+	#print("collecting cycles results")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"cyclesres")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	cycles = int(m.decode(), 16)
+
+	#print("ok(111)")
+	(ch, m) = bc.recv_message()
+	assert(ch == 0)
+	assert(m == b"ok111")
+
+	return cycles
+
+
 
 # composition of elementary steps
 def execute_experiment(bc, inputs):

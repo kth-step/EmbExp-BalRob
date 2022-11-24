@@ -1,0 +1,459 @@
+# https://developer.arm.com/documentation/dui0489/i/arm-and-thumb-instructions/adc
+# https://azeria-labs.com/arm-conditional-execution-and-branching-part-6/
+
+
+# https://github.com/bobbl/libaeabi-cortexm0/blob/master/idivmod.S
+
+# https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads/7-2018-q2-update
+wget "https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-src.tar.bz2?rev=bf2e4a67c08c49d5b97d17757cc8a77e&revision=bf2e4a67-c08c-49d5-b97d-17757cc8a77e?product=GNU%20Arm%20Embedded%20Toolchain%20Downloads,Invariant,,Source,7-2018-q2-update"
+cat "gcc-arm-none-eabi-7-2018-q2-update-src.tar.bz2" | tar -xj -C gcc-arm-none-eabi-7-2018-q2-update-src --strip-components 1
+#./install-sources.sh
+#tar -xjf gcc.tar.bz2
+tar -xjf newlib.tar.bz2
+
+~/data/hol/HolBA_opt/gcc_src/gcc-arm-none-eabi-7-2018-q2-update-src/src/gcc/libgcc/config/arm/lib1funcs.S
+960: .macro THUMB1_Div_Positive
+
+
+
+
+10000000 <__udivsi3>:
+10000000:	2200      	movs	r2, #0
+
+10000002:	0843      	lsrs	r3, r0, #1
+10000004:	428b      	cmp	r3, r1
+10000006:	d374      	bcc.n	100000f2 <__udivsi3+0xf2>
+10000008:	0903      	lsrs	r3, r0, #4
+1000000a:	428b      	cmp	r3, r1
+1000000c:	d35f      	bcc.n	100000ce <__udivsi3+0xce>
+1000000e:	0a03      	lsrs	r3, r0, #8
+10000010:	428b      	cmp	r3, r1
+10000012:	d344      	bcc.n	1000009e <__udivsi3+0x9e>
+10000014:	0b03      	lsrs	r3, r0, #12
+10000016:	428b      	cmp	r3, r1
+10000018:	d328      	bcc.n	1000006c <__udivsi3+0x6c>
+1000001a:	0c03      	lsrs	r3, r0, #16
+1000001c:	428b      	cmp	r3, r1
+1000001e:	d30d      	bcc.n	1000003c <__udivsi3+0x3c>
+
+
+10000020:	22ff      	movs	r2, #255	; 0xff
+10000022:	0209      	lsls	r1, r1, #8
+10000024:	ba12      	rev	r2, r2
+10000026:	0c03      	lsrs	r3, r0, #16
+10000028:	428b      	cmp	r3, r1
+1000002a:	d302      	bcc.n	10000032 <__udivsi3+0x32>
+1000002c:	1212      	asrs	r2, r2, #8
+1000002e:	0209      	lsls	r1, r1, #8
+10000030:	d065      	beq.n	100000fe <__udivsi3+0xfe>
+10000032:	0b03      	lsrs	r3, r0, #12
+10000034:	428b      	cmp	r3, r1
+10000036:	d319      	bcc.n	1000006c <__udivsi3+0x6c>
+10000038:	e000      	b.n	1000003c <__udivsi3+0x3c>
+
+
+1000003a:	0a09      	lsrs	r1, r1, #8
+
+1000003c:	0bc3      	lsrs	r3, r0, #15
+1000003e:	428b      	cmp	r3, r1
+10000040:	d301      	bcc.n	10000046 <__udivsi3+0x46>
+10000042:	03cb      	lsls	r3, r1, #15
+10000044:	1ac0      	subs	r0, r0, r3
+10000046:	4152      	adcs	r2, r2
+10000048:	0b83      	lsrs	r3, r0, #14
+1000004a:	428b      	cmp	r3, r1
+1000004c:	d301      	bcc.n	10000052 <__udivsi3+0x52>
+1000004e:	038b      	lsls	r3, r1, #14
+10000050:	1ac0      	subs	r0, r0, r3
+10000052:	4152      	adcs	r2, r2
+10000054:	0b43      	lsrs	r3, r0, #13
+10000056:	428b      	cmp	r3, r1
+10000058:	d301      	bcc.n	1000005e <__udivsi3+0x5e>
+1000005a:	034b      	lsls	r3, r1, #13
+1000005c:	1ac0      	subs	r0, r0, r3
+1000005e:	4152      	adcs	r2, r2
+10000060:	0b03      	lsrs	r3, r0, #12
+10000062:	428b      	cmp	r3, r1
+10000064:	d301      	bcc.n	1000006a <__udivsi3+0x6a>
+10000066:	030b      	lsls	r3, r1, #12
+10000068:	1ac0      	subs	r0, r0, r3
+1000006a:	4152      	adcs	r2, r2
+
+
+1000006c:	0ac3      	lsrs	r3, r0, #11
+1000006e:	428b      	cmp	r3, r1
+10000070:	d301      	bcc.n	10000076 <__udivsi3+0x76>
+10000072:	02cb      	lsls	r3, r1, #11
+10000074:	1ac0      	subs	r0, r0, r3
+10000076:	4152      	adcs	r2, r2
+10000078:	0a83      	lsrs	r3, r0, #10
+1000007a:	428b      	cmp	r3, r1
+1000007c:	d301      	bcc.n	10000082 <__udivsi3+0x82>
+1000007e:	028b      	lsls	r3, r1, #10
+10000080:	1ac0      	subs	r0, r0, r3
+10000082:	4152      	adcs	r2, r2
+10000084:	0a43      	lsrs	r3, r0, #9
+10000086:	428b      	cmp	r3, r1
+10000088:	d301      	bcc.n	1000008e <__udivsi3+0x8e>
+1000008a:	024b      	lsls	r3, r1, #9
+1000008c:	1ac0      	subs	r0, r0, r3
+1000008e:	4152      	adcs	r2, r2
+10000090:	0a03      	lsrs	r3, r0, #8
+10000092:	428b      	cmp	r3, r1
+10000094:	d301      	bcc.n	1000009a <__udivsi3+0x9a>
+10000096:	020b      	lsls	r3, r1, #8
+10000098:	1ac0      	subs	r0, r0, r3
+1000009a:	4152      	adcs	r2, r2
+
+/*
+b __aeabi_uidivmod
+continue
+
+b *0x1000009c
+b *0x1000009e
+b *0x100000fc
+p/x $r0
+p/x $r1
+continue
+
+
+*/
+
+#### LOOOOOP (with inputs ((2 ** 32) - 1, 1) we pass this point 3 times)
+1000009c:	d2cd      	bcs.n	1000003a <__udivsi3+0x3a>
+
+
+1000009e:	09c3      	lsrs	r3, r0, #7
+100000a0:	428b      	cmp	r3, r1
+100000a2:	d301      	bcc.n	100000a8 <__udivsi3+0xa8>
+100000a4:	01cb      	lsls	r3, r1, #7
+100000a6:	1ac0      	subs	r0, r0, r3
+100000a8:	4152      	adcs	r2, r2
+100000aa:	0983      	lsrs	r3, r0, #6
+100000ac:	428b      	cmp	r3, r1
+100000ae:	d301      	bcc.n	100000b4 <__udivsi3+0xb4>
+100000b0:	018b      	lsls	r3, r1, #6
+100000b2:	1ac0      	subs	r0, r0, r3
+100000b4:	4152      	adcs	r2, r2
+100000b6:	0943      	lsrs	r3, r0, #5
+100000b8:	428b      	cmp	r3, r1
+100000ba:	d301      	bcc.n	100000c0 <__udivsi3+0xc0>
+100000bc:	014b      	lsls	r3, r1, #5
+100000be:	1ac0      	subs	r0, r0, r3
+100000c0:	4152      	adcs	r2, r2
+
+
+100000c2:	0903      	lsrs	r3, r0, #4
+100000c4:	428b      	cmp	r3, r1
+100000c6:	d301      	bcc.n	100000cc <__udivsi3+0xcc>
+100000c8:	010b      	lsls	r3, r1, #4
+100000ca:	1ac0      	subs	r0, r0, r3
+100000cc:	4152      	adcs	r2, r2
+
+
+100000ce:	08c3      	lsrs	r3, r0, #3
+100000d0:	428b      	cmp	r3, r1
+100000d2:	d301      	bcc.n	100000d8 <__udivsi3+0xd8>
+100000d4:	00cb      	lsls	r3, r1, #3
+100000d6:	1ac0      	subs	r0, r0, r3
+100000d8:	4152      	adcs	r2, r2
+
+
+100000da:	0883      	lsrs	r3, r0, #2
+100000dc:	428b      	cmp	r3, r1
+100000de:	d301      	bcc.n	100000e4 <__udivsi3+0xe4>
+100000e0:	008b      	lsls	r3, r1, #2
+100000e2:	1ac0      	subs	r0, r0, r3
+100000e4:	4152      	adcs	r2, r2
+
+
+100000e6:	0843      	lsrs	r3, r0, #1
+100000e8:	428b      	cmp	r3, r1
+100000ea:	d301      	bcc.n	100000f0 <__udivsi3+0xf0>
+100000ec:	004b      	lsls	r3, r1, #1
+100000ee:	1ac0      	subs	r0, r0, r3
+100000f0:	4152      	adcs	r2, r2
+
+
+100000f2:	1a41      	subs	r1, r0, r1
+100000f4:	d200      	bcs.n	100000f8 <__udivsi3+0xf8>
+100000f6:	4601      	mov	r1, r0
+
+
+100000f8:	4152      	adcs	r2, r2
+100000fa:	4610      	mov	r0, r2
+100000fc:	4770      	bx	lr
+
+100000fe:	e7ff      	b.n	10000100 <__udivsi3+0x100>
+
+
+10000100:	b501      	push	{r0, lr}
+10000102:	2000      	movs	r0, #0
+10000104:	f000 f826 	bl	10000154 <__aeabi_idiv0>
+10000108:	bd02      	pop	{r1, pc}
+1000010a:	46c0      	nop			; (mov r8, r8)
+
+1000010c <__aeabi_uidivmod>:
+1000010c:	2900      	cmp	r1, #0
+1000010e:	d0f7      	beq.n	10000100 <__udivsi3+0x100>
+10000110:	e776      	b.n	10000000 <__udivsi3>
+10000112:	4770      	bx	lr
+10000114:	000c      	movs	r4, r1
+10000116:	0000      	movs	r0, r0
+10000118:	ffff ffff 			; <UNDEFINED> instruction: 0xffffffff
+1000011c:	0001      	movs	r1, r0
+1000011e:	7c01      	ldrb	r1, [r0, #16]
+10000120:	0c0e      	lsrs	r6, r1, #16
+10000122:	000d      	movs	r5, r1
+10000124:	0000000c 	.word	0x0000000c
+10000128:	10000114 	.word	0x10000114
+1000012c:	10000001 	.word	0x10000001
+10000130:	0000010a 	.word	0x0000010a
+10000134:	00001d41 	.word	0x00001d41
+10000138:	61656100 	.word	0x61656100
+1000013c:	01006962 	.word	0x01006962
+10000140:	00000013 	.word	0x00000013
+10000144:	2d533605 	.word	0x2d533605
+10000148:	0c06004d 	.word	0x0c06004d
+1000014c:	01094d07 	.word	0x01094d07
+10000150:	00000119 	.word	0x00000119
+
+10000154 <__aeabi_idiv0>:
+10000154:	4770      	bx	lr
+10000156:	46c0      	nop			; (mov r8, r8)
+10000158:	00001d41 	.word	0x00001d41
+1000015c:	61656100 	.word	0x61656100
+10000160:	01006962 	.word	0x01006962
+10000164:	00000013 	.word	0x00000013
+10000168:	2d533605 	.word	0x2d533605
+1000016c:	0c06004d 	.word	0x0c06004d
+10000170:	01094d07 	.word	0x01094d07
+10000174:	00000119 	.word	0x00000119
+
+
+
+
+
+/* If performance is preferred, the following functions are provided.  */
+#if defined(__prefer_thumb__) && !defined(__OPTIMIZE_SIZE__)
+
+/* Branch to div(n), and jump to label if curbit is lo than divisior.  */
+.macro BranchToDiv n, label
+	lsr	curbit, dividend, \n
+	cmp	curbit, divisor
+	blo	\label
+.endm
+
+/* Body of div(n).  Shift the divisor in n bits and compare the divisor
+   and dividend.  Update the dividend as the substruction result.  */
+.macro DoDiv n
+	lsr	curbit, dividend, \n
+	cmp	curbit, divisor
+	bcc	1f
+	lsl	curbit, divisor, \n
+	sub	dividend, dividend, curbit
+
+1:	adc	result, result
+.endm
+
+/* The body of division with positive divisor.  Unless the divisor is very
+   big, shift it up in multiples of four bits, since this is the amount of
+   unwinding in the main division loop.  Continue shifting until the divisor
+   is larger than the dividend.  */
+.macro THUMB1_Div_Positive
+	mov	result, #0
+	BranchToDiv #1, LSYM(Lthumb1_div1)
+	BranchToDiv #4, LSYM(Lthumb1_div4)
+	BranchToDiv #8, LSYM(Lthumb1_div8)
+	BranchToDiv #12, LSYM(Lthumb1_div12)
+	BranchToDiv #16, LSYM(Lthumb1_div16)
+LSYM(Lthumb1_div_large_positive):
+	mov	result, #0xff
+	lsl	divisor, divisor, #8
+	rev	result, result
+	lsr	curbit, dividend, #16
+	cmp	curbit, divisor
+	blo	1f
+	asr	result, #8
+	lsl	divisor, divisor, #8
+	beq	LSYM(Ldivbyzero_waypoint)
+
+1:	lsr	curbit, dividend, #12
+	cmp	curbit, divisor
+	blo	LSYM(Lthumb1_div12)
+	b	LSYM(Lthumb1_div16)
+LSYM(Lthumb1_div_loop):
+	lsr	divisor, divisor, #8
+LSYM(Lthumb1_div16):
+	Dodiv	#15
+	Dodiv	#14
+	Dodiv	#13
+	Dodiv	#12
+LSYM(Lthumb1_div12):
+	Dodiv	#11
+	Dodiv	#10
+	Dodiv	#9
+	Dodiv	#8
+	bcs	LSYM(Lthumb1_div_loop)
+LSYM(Lthumb1_div8):
+	Dodiv	#7
+	Dodiv	#6
+	Dodiv	#5
+LSYM(Lthumb1_div5):
+	Dodiv	#4
+LSYM(Lthumb1_div4):
+	Dodiv	#3
+LSYM(Lthumb1_div3):
+	Dodiv	#2
+LSYM(Lthumb1_div2):
+	Dodiv	#1
+LSYM(Lthumb1_div1):
+	sub	divisor, dividend, divisor
+	bcs	1f
+	cpy	divisor, dividend
+
+1:	adc	result, result
+	cpy	dividend, result
+	RET
+
+LSYM(Ldivbyzero_waypoint):
+	b	LSYM(Ldiv0)
+.endm
+
+/* The body of division with negative divisor.  Similar with
+   THUMB1_Div_Positive except that the shift steps are in multiples
+   of six bits.  */
+.macro THUMB1_Div_Negative
+	lsr	result, divisor, #31
+	beq	1f
+	neg	divisor, divisor
+
+1:	asr	curbit, dividend, #32
+	bcc	2f
+	neg	dividend, dividend
+
+2:	eor	curbit, result
+	mov	result, #0
+	cpy	ip, curbit
+	BranchToDiv #4, LSYM(Lthumb1_div_negative4)
+	BranchToDiv #8, LSYM(Lthumb1_div_negative8)
+LSYM(Lthumb1_div_large):
+	mov	result, #0xfc
+	lsl	divisor, divisor, #6
+	rev	result, result
+	lsr	curbit, dividend, #8
+	cmp	curbit, divisor
+	blo	LSYM(Lthumb1_div_negative8)
+
+	lsl	divisor, divisor, #6
+	asr	result, result, #6
+	cmp	curbit, divisor
+	blo	LSYM(Lthumb1_div_negative8)
+
+	lsl	divisor, divisor, #6
+	asr	result, result, #6
+	cmp	curbit, divisor
+	blo	LSYM(Lthumb1_div_negative8)
+
+	lsl	divisor, divisor, #6
+	beq	LSYM(Ldivbyzero_negative)
+	asr	result, result, #6
+	b	LSYM(Lthumb1_div_negative8)
+LSYM(Lthumb1_div_negative_loop):
+	lsr	divisor, divisor, #6
+LSYM(Lthumb1_div_negative8):
+	DoDiv	#7
+	DoDiv	#6
+	DoDiv	#5
+	DoDiv	#4
+LSYM(Lthumb1_div_negative4):
+	DoDiv	#3
+	DoDiv	#2
+	bcs	LSYM(Lthumb1_div_negative_loop)
+	DoDiv	#1
+	sub	divisor, dividend, divisor
+	bcs	1f
+	cpy	divisor, dividend
+
+1:	cpy	curbit, ip
+	adc	result, result
+	asr	curbit, curbit, #1
+	cpy	dividend, result
+	bcc	2f
+	neg	dividend, dividend
+	cmp	curbit, #0
+
+2:	bpl	3f
+	neg	divisor, divisor
+
+3:	RET
+
+LSYM(Ldivbyzero_negative):
+	cpy	curbit, ip
+	asr	curbit, curbit, #1
+	bcc	LSYM(Ldiv0)
+	neg	dividend, dividend
+.endm
+#endif /* ARM Thumb version.  */
+
+
+
+
+
+
+@ int __aeabi_idiv0(int r)
+@
+@ Handler for 32 bit division by zero
+@
+	.thumb_func
+        .global __aeabi_idiv0
+__aeabi_idiv0:
+	bx	lr
+
+@ {unsigned quotient:r0, unsigned remainder:r1}
+@  __aeabi_uidivmod(unsigned numerator:r0, unsigned denominator:r1)
+@
+@ Divide r0 by r1 and return the quotient in r0 and the remainder in r1
+@
+	.thumb_func
+        .global __aeabi_uidivmod
+__aeabi_uidivmod:
+
+
+
+.Luidivmod:
+	cmp	r1, #0
+	bne	1f
+	b	__aeabi_idiv0
+1:
+
+	@ Shift left the denominator until it is greater than the numerator
+	movs	r2, #1		@ counter
+	movs	r3, #0		@ result
+	cmp	r0, r1
+	bls	.Lsub_loop
+	adds	r1, #0		@ dont shift if denominator would overflow
+	bmi	.Lsub_loop
+
+.Ldenom_shift_loop:
+	lsls	r2, #1
+	lsls	r1, #1
+	bmi	.Lsub_loop
+	cmp	r0, r1
+	bhi	.Ldenom_shift_loop
+
+.Lsub_loop:	
+	cmp	r0, r1
+	bcc	.Ldont_sub	@ if (num>denom)
+
+	subs	r0, r1		@ numerator -= denom
+	orrs	r3, r2		@ result(r3) |= bitmask(r2)
+.Ldont_sub:
+
+	lsrs	r1, #1		@ denom(r1) >>= 1
+	lsrs	r2, #1		@ bitmask(r2) >>= 1
+	bne	.Lsub_loop
+
+	mov	r1, r0		@ remainder(r1) = numerator(r0)
+	mov	r0, r3		@ quotient(r0) = result(r3)
+	bx	lr

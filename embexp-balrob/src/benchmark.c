@@ -142,6 +142,7 @@ uint32_t benchmark_measure6(uint32_t (*fun_ptr)(uint32_t, uint32_t, uint32_t, ui
 void _alignmenttestfun(uint32_t, uint32_t);
 void _reffunc_test4();
 uint32_t _mymodexp(uint32_t, uint32_t, uint32_t, uint32_t);
+uint32_t __aeabi_uidivmod(uint32_t, uint32_t);
 
 
 //#define USE_FIXED_BENCHMARK_INPUTS
@@ -362,6 +363,24 @@ void set_inputs() {
         cycles = benchmark_measure6(_mymodexp, e, f, g, h);
         out_info_inthex("cyclesres", cycles - cycles_bl);
         out_info("ok110");
+        break;
+
+      case 111: // otherbenchs: __aeabi_uidivmod(uint32, uint32)
+        if (in_data_len != (4*(2))) {
+          out_info("nok111");
+          break;
+        }
+
+        buf_ptr = (uint32_t)in_buffer + 4;
+        e = *((uint32_t*)(buf_ptr));
+        buf_ptr += sizeof(uint32_t);
+        f = *((uint32_t*)(buf_ptr));
+        buf_ptr += sizeof(uint32_t);
+
+        cycles_bl = benchmark_measure6((uint32_t (*)(uint32_t, uint32_t, uint32_t, uint32_t))_imu_handler_pid_entry_dummy, 0, 0, 0, 0);
+        cycles = benchmark_measure6((uint32_t (*)(uint32_t, uint32_t, uint32_t, uint32_t))__aeabi_uidivmod, e, f, 0, 0);
+        out_info_inthex("cyclesres", cycles - cycles_bl);
+        out_info("ok111");
         break;
 
 
