@@ -206,13 +206,12 @@ def run_experiment__reffunc_test4(bc):
 
 	return cycles
 
-def run_experiment__mymodexp(bc, a, b, c, d):
+def run_experiment__mymodexp(bc, a, b, c):
 	assert(type(a) == int)
 	assert(type(b) == int)
 	assert(type(c) == int)
-	assert(type(d) == int)
 
-	m = struct.pack("<LLLL", a, b, c, d)
+	m = struct.pack("<LLL", a, b, c)
 
 	bc.send_message((110, m))
 	# expect result and then ok(110)
