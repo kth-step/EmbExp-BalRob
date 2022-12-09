@@ -14,7 +14,7 @@ SECTIONS
                 KEEP (*(.after_vectors));
                 . = 0x200;
                 /*. = 0x1700; */
-		EXCLUDE_FILE (*/libgcc.a) *(.text*);
+		EXCLUDE_FILE (*/libgcc.a */otherbenchs.o) *(.text*);
                 *(.keepinflash*);
                 *(.rodata*);
                 . = ALIGN(4);
@@ -24,7 +24,7 @@ SECTIONS
         .reloadtext : 
         {
                 *libgcc.a:*(*); /* .text* .text.* */
-                *(.reloadtext123*);
+                */otherbenchs.o (.text*);
         } >ram AT>flash
 
         PROVIDE(_fromreloadtext = LOADADDR(.reloadtext));
